@@ -38,4 +38,12 @@ class UserModel {
         $stmt->bindParam(':password', $hashed_password);
         return $stmt->execute();
     }
+    
+    // Get user by ID
+    public function getUserById($userId) {
+        $stmt = $this->conn->prepare("SELECT id_user, username, id_role, is_active FROM user WHERE id_user = :id_user");
+        $stmt->bindParam(':id_user', $userId);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }
