@@ -9,6 +9,19 @@ $isLoggedIn = isset($_SESSION['id_user']) && !empty($_SESSION['id_user']);
 $username = $isLoggedIn ? $_SESSION['username'] : '';
 ?>
 
+<!-- Import Montserrat font from Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+    
+    .colorlib-nav ul li > a {
+        font-family: 'Montserrat', sans-serif !important;
+        font-size: 24px !important;
+        font-weight: bold !important;
+        text-transform: none !important;
+    }
+</style>
+
 <nav class="colorlib-nav" role="navigation">
     <div class="top-menu">
         <div class="container">
@@ -32,7 +45,7 @@ $username = $isLoggedIn ? $_SESSION['username'] : '';
                         <li><a href="/web_php_mvc/View/user/sneaker-shoes.php">Sneakers</a></li>
                         <li><a href="/web_php_mvc/View/user/leather-shoes.php">Giày da</a></li>
                         <li><a href="/web_php_mvc/View/user/children-shoes.php">Giày trẻ em</a></li>
-                        <li class="cart"><a href="/web_php_mvc/View/user/cart.php"><i class="icon-shopping-cart"></i> Cart [0]</a></li>
+                        <li class="cart"><a href="/web_php_mvc/View/user/cart.php"><i class="icon-shopping-cart"></i> Cart</a></li>
                         <li class="cart">
                             <?php if ($isLoggedIn): ?>
                                 <a href="/web_php_mvc/View/user/profile.php"><i class="icon-user"></i> <?php echo htmlspecialchars($username); ?></a>

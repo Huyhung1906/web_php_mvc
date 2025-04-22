@@ -18,6 +18,7 @@ class UserProfileController {
         
         $userId = $_SESSION['id_user'];
         $userData = $this->getUserData($userId);
+        $userAddresses = $this->userModel->getUserAddresses($userId);
         
         // Include the profile view
         require_once 'View/user/profile.php';
@@ -37,5 +38,6 @@ class UserProfileController {
         // This would handle profile updates
         // Not implemented in this initial version
     }
+    
 }
 ?> 

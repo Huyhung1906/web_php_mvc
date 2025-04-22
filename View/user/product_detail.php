@@ -49,17 +49,13 @@ if (!isset($product) || empty($product)) {
 				<div class="row row-pb-lg product-detail-wrap">
 					<div class="col-sm-8">
                         <?php if (!empty($product['images'])): ?>
-						<div class="owl-carousel">
-                            <?php foreach ($product['images'] as $image): ?>
-							<div class="item">
+                            <div class="item">
 								<div class="product-entry border">
 									<a href="#" class="prod-img">
-										<img src="/web_php_mvc/public/images/<?php echo htmlspecialchars($image['imageUrl']); ?>" class="img-fluid" alt="<?php echo htmlspecialchars($product['name_product']); ?>">
+										<img src="/web_php_mvc/public/images/<?php echo htmlspecialchars($product['images'][0]['imageUrl']); ?>" class="img-fluid" alt="<?php echo htmlspecialchars($product['name_product']); ?>">
 									</a>
 								</div>
 							</div>
-                            <?php endforeach; ?>
-						</div>
                         <?php else: ?>
                         <div class="product-entry border">
                             <img src="/web_php_mvc/public/images/<?php echo htmlspecialchars($product['imageUrl'] ?? 'item-1.jpg'); ?>" class="img-fluid" alt="<?php echo htmlspecialchars($product['name_product']); ?>">
@@ -116,7 +112,7 @@ if (!isset($product) || empty($product)) {
                             <div class="row">
                                 <div class="col-sm-12 text-center">
                                     <button id="add-to-cart" class="btn btn-primary btn-addtocart">
-                                        <i class="icon-shopping-cart"></i> THÊM VÀO GIỎ
+                                        <i class="icon-shopping-cart"> THÊM VÀO GIỎ</i> 
                                     </button>
                                 </div>
                             </div>
@@ -255,8 +251,34 @@ if (!isset($product) || empty($product)) {
                 }
                 
                 var quantity = $('#quantity').val();
-                // Add AJAX call to add to cart here
-                alert('Added to cart! Size: ' + sizeId + ', Quantity: ' + quantity);
+                
+                // AJAX request to add to cart
+                $.ajax({
+                    url: '/web_php_mvc/process_cart.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        action: 'add',
+                        product_id: <?php echo $product['id_product']; ?>,
+                        size_id: sizeId,
+                        quantity: quantity
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            alert(response.message);
+                            // Update cart count in header if needed
+                            if (response.cart_count) {
+                                // Assuming you have an element to display cart count
+                                $('.cart-item-count').text(response.cart_count);
+                            }
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred. Please try again later.');
+                    }
+                });
             });
             
             // Buy now functionality
@@ -269,8 +291,29 @@ if (!isset($product) || empty($product)) {
                 }
                 
                 var quantity = $('#quantity').val();
-                // Add redirect to checkout page here
-                window.location.href = '/checkout?product_id=<?php echo $product['id_product']; ?>&size_id=' + sizeId + '&quantity=' + quantity;
+                // Add product to cart first
+                $.ajax({
+                    url: '/web_php_mvc/process_cart.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        action: 'add',
+                        product_id: <?php echo $product['id_product']; ?>,
+                        size_id: sizeId,
+                        quantity: quantity
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            // Redirect to checkout page
+                            window.location.href = '/web_php_mvc/checkout';
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred. Please try again later.');
+                    }
+                });
             });
         });
     </script>

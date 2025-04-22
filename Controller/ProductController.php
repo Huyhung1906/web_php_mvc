@@ -1,7 +1,7 @@
 <?php
 require_once 'Model/Product.php';
 
-class UserController {
+class ProductController {
     private $db;
     private $productModel;
     
@@ -116,5 +116,4 @@ class UserController {
             echo "Error: " . $e->getMessage();
         }
     }
-}
-?>
+} 

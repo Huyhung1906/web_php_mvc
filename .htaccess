@@ -2,4 +2,10 @@ RewriteEngine On
 RewriteBase /web_php_mvc-master/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.+)$ index.php?url=$1 [QSA,L] 
+RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+
+# Handle cart page
+RewriteRule ^cart$ index.php?controller=cart&action=viewCart [L]
+
+# Handle checkout page
+RewriteRule ^checkout$ index.php?controller=checkout&action=index [L] 
