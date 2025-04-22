@@ -10,8 +10,6 @@ if (!isset($_SESSION['id_role']) || $_SESSION['id_role'] != 1) {
 
 $model = new AdminModel($conn);
 
-$customers = $model->getCustomerCount();
-$orders = $model->getOrderCount();
 // Xử lý xóa
 if (isset($_GET['delete'])) {
     $model->deleteUser($_GET['delete']);
@@ -23,4 +21,4 @@ if (isset($_GET['delete'])) {
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $users = $model->getUsers($search);
 
-include '../../view/admin/index.php';
+include '../../View/admin/users.php';

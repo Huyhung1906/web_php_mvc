@@ -3,7 +3,9 @@ session_start();
 require_once('../../Model/user.php');
 
 class RegisterController {
+    
     public function handleRegister() {
+        $error_msg = "";
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $username = trim($_POST['username'] ?? '');
             $password = trim($_POST['password'] ?? '');
