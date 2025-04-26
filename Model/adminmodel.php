@@ -52,4 +52,39 @@ class AdminModel {
         $deleteQuery = $this->conn->prepare("DELETE FROM user WHERE id_user = ?");
         return $deleteQuery->execute([$id]);
     }
+    public function addUser($username, $password, $fullname, $email, $phone, $id_role)
+    {
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        $queryStr = $this->conn->prepare("INSERT INTO user (username, password, fullname, email, phone, id_role, is_active) 
+                                      VALUES (:username, :password, :fullname, :email, :phone, :id_role, 1)");
+
+        $queryStr->bindParam(':username', $username);
+        $queryStr->bindParam(':password', $hashed_password);
+        $queryStr->bindParam(':fullname', $fullname);
+        $queryStr->bindParam(':email', $email);
+        $queryStr->bindParam(':phone', $phone);
+        $queryStr->bindParam(':id_role', $id_role); // thêm dòng này nè bạn
+
+        return $queryStr->execute();
+    }
+    public function checkUsernameExists($username)
+{
+    $query = $this->conn->prepare("SELECT COUNT(*) FROM user WHERE username = :username");
+    $query->bindParam(':username', $username);
+    $query->execute();
+    return $query->fetchColumn() > 0; // trả về true nếu tồn tại
+}
+
+
+    public function getAllRoles() {
+        $query = "SELECT id_role, name_role FROM role";
+        $result = $this->conn->query($query);
+
+        $roles = [];
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $roles[] = $row;
+        }
+        return $roles;
+    }
 }

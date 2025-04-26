@@ -22,3 +22,4 @@ $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $users = $model->getUsers($search);
 
 include '../../View/admin/users.php';
+

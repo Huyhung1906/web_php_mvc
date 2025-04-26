@@ -8,6 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý User</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+     <!-- Sidebar CSS -->
+     <link rel="stylesheet" href="slidebar.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
         body { background-color: #f4f4f9; }
@@ -27,13 +29,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="sidebar">
-            <a href="index.php"><i class="fas fa-tachometer-alt"></i></a>
-            <a href="users.php" class="active"><i class="fas fa-users"></i></a>
-            <a href="products.php"><i class="fas fa-shoe-prints"></i></a>
-            <a href="invoices.php"><i class="fas fa-file-invoice"></i></a>
-            <a href="../logout.php"><i class="fas fa-sign-out-alt"></i></a>
-        </div>
+        <?php include('slidebar.php'); ?>
 
         <div class="main-content">
             <div class="header">
@@ -41,7 +37,7 @@
                     <input type="text" name="search" placeholder="Tìm kiếm user..." value="<?php echo htmlspecialchars($search); ?>">
                     <button type="submit">Tìm</button>
                 </form>
-                <a href="add_user.php">+ Thêm User</a>
+                <a href="adduser.php">+ Thêm User</a>
             </div>
 
             <table class="table">
@@ -50,6 +46,7 @@
                         <th>ID</th>
                         <th>Username</th>
                         <th>Email</th>
+                        <th>Số điện thoại</th>
                         <th>Vai trò</th>
                         <th>Hành động</th>
                     </tr>
@@ -60,6 +57,7 @@
                             <td><?php echo $user['id_user']; ?></td>
                             <td><?php echo htmlspecialchars($user['username']); ?></td>
                             <td><?php echo htmlspecialchars($user['email']); ?></td>
+                            <td><?php echo htmlspecialchars($user['phone']); ?></td>
                             <td><?php echo ($user['id_role'] == 1) ? 'Admin' : 'User'; ?></td>
                             <td class="actions">
                                 <a href="edit_user.php?id=<?php echo $user['id_user']; ?>"><i class="fas fa-edit"></i></a>

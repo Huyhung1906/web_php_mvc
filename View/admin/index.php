@@ -7,6 +7,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Quản Lý Bán Giày</title>
+    <link rel="stylesheet" href="slidebar.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
@@ -28,13 +30,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="sidebar">
-            <a href="index.php" class="active"><i class="fas fa-tachometer-alt"></i></a>
-            <a href="users.php"><i class="fas fa-users"></i></a>
-            <a href="products.php"><i class="fas fa-shoe-prints"></i></a>
-            <a href="invoices.php"><i class="fas fa-file-invoice"></i></a>
-            <a href="../auth/logout.php"><i class="fas fa-sign-out-alt"></i></a>
-        </div>
+    <?php include('slidebar.php'); ?>
         <div class="main-content">
             <div class="header">
                 <h2>Dashboard</h2>
