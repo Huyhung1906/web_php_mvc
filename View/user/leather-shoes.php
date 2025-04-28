@@ -1,22 +1,24 @@
 <!DOCTYPE HTML>
 <?php
 require_once __DIR__ . '/../../config/config.php';
-require_once __DIR__ . '/../../Model/Product.php';
-
+require_once __DIR__ . '/../../Controller/ProductFilterController.php';
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-// Initialize Product class and get sneakers
-$productModel = new Product();
-$leatherShoes = $productModel->getLeatherShoes(); // You'll need to implement this method in the Product class
+
+// Initialize ProductFilterController and get filtered leather shoes
+$filterController = new ProductFilterController();
+$result = $filterController->getFilteredLeatherShoes();
+$leatherShoes = $result['products'];
+$sizes = $result['sizes'];
 
 $isLoggedIn = isset($_SESSION['id_user']) && !empty($_SESSION['id_user']);
 $username = $isLoggedIn ? $_SESSION['username'] : '';
 ?>
 <html>
 	<head>
-	<title>Sneakers - Footwear Store</title>
+	<title>Leather Shoes - Footwear Store</title>
    <meta charset="utf-8">
    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -54,49 +56,7 @@ $username = $isLoggedIn ? $_SESSION['username'] : '';
 		<div class="colorlib-product">
 			<div class="container">
 				<div class="row">
-					<div class="col-lg-3 col-xl-3">
-						<div class="row">
-							<div class="col-sm-12">
-								<div class="side border mb-1">
-									<h3>Size</h3>
-									<select class="form-control" id="shoeSize">
-										<option>Tất cả</option>
-										<option>36</option>
-										<option>37</option>
-										<option>38</option>
-										<option>39</option>
-										<option>40</option>
-										<option>41</option>
-										<option>42</option>
-										<option>43</option>
-									</select>
-								</div>
-							</div>
-							<div class="col-sm-12">
-								<div class="side border mb-1">
-									<h3>Price Range</h3>
-									<select class="form-control" id="priceRange">
-										<option>Tất cả</option>
-										<option>Under 1,000,000đ</option>
-										<option>1,000,000đ - 2,000,000đ</option>
-										<option>2,000,000đ - 3,000,000đ</option>
-										<option>Over 3,000,000đ</option>
-									</select>
-								</div>
-							</div>
-							<div class="col-sm-12">
-								<div class="side border mb-1">
-									<h3>Sort By</h3>
-									<select class="form-control" id="sortBy">
-										<option>Giá thấp đến cao</option>
-										<option>Giá cao đến thấp</option>
-										<option>Mới nhất</option>
-										<option>Phổ biến nhất</option>
-									</select>
-								</div>
-							</div>
-						</div>
-					</div>
+					<?php include 'filter.php'; ?>
 
 					<div class="col-lg-9 col-xl-9">
 						<div class="row row-pb-md">

@@ -139,7 +139,7 @@ $userAddresses = $userModel->getUserAddresses($userId);
 								</div>
 							<?php endif; ?>
 							
-							<h4 class="mt-4">Add New Address</h4>
+							<h4 class="mt-4">Add New Address/Or Edit Address</h4>
 							<form action="/web_php_mvc/View/user/add-address.php" method="post" class="mt-3">
 								<div class="row">
 									<div class="col-md-6">
