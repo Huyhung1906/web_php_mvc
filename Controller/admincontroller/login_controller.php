@@ -22,7 +22,7 @@ class LoginController {
 
                         if ($user['id_role'] == 3) {
                             $_SESSION['error_msg'] = "Bạn không có quyền truy cập trang admin!";
-                            header("Location: ../admin/login.php");
+                            header("Location: ../auth/login.php");
                             exit();
                         } else {
                             $_SESSION['admin_logged_in'] = true;

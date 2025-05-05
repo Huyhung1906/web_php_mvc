@@ -11,7 +11,7 @@
      <!-- Sidebar CSS -->
      <link rel="stylesheet" href="slidebar.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box;  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
         body { background-color: #f4f4f9; }
         .container { display: flex; min-height: 100vh; }
         .sidebar { width: 50px; background-color: #1a1f37; color: white; padding: 20px 0; text-align: center; }
