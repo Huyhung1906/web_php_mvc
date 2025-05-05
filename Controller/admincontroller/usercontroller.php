@@ -8,8 +8,9 @@ if (!isset($_SESSION['id_role']) || $_SESSION['id_role'] != 1) {
     exit();
 }
 
-$model = new AdminModel($conn);
 
+
+$model = new AdminModel($conn);
 // Xử lý xóa
 if (isset($_GET['delete'])) {
     $model->deleteUser($_GET['delete']);
@@ -19,7 +20,12 @@ if (isset($_GET['delete'])) {
 
 // Xử lý tìm kiếm
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-$users = $model->getUsers($search);
 
-include '../../View/admin/users.php';
+// Lấy danh sách người dùng (có hoặc không có từ khóa tìm kiếm)
+if ($search !== '') {
+    $users = $model->getUsers($search); // nên trả về name_role trong kết quả
+} else {
+    $users = $model->getAllUsersWithRole();
+}
+
 

@@ -1,5 +1,12 @@
 <?php
-require_once('../../Controller/admincontroller/adduser.php');
+session_start();
+require_once('../../Controller/admincontroller/edituser.php');
+
+// Kiểm tra quyền truy cập
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['id_role'] == 3) {
+    header("Location: ../view/auth/login.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -7,11 +14,10 @@ require_once('../../Controller/admincontroller/adduser.php');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thêm Người Dùng</title>
+    <title>Chỉnh sửa Người Dùng</title>
 
-    <!-- Link Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="slidebar.css"> <!-- Slidebar riêng -->
+    <link rel="stylesheet" href="slidebar.css">
 
     <style>
         * {
@@ -116,24 +122,24 @@ require_once('../../Controller/admincontroller/adduser.php');
         }
 
         .btn-back {
-    position: absolute;
-    top: 20px;
-    right: 30px;
-    background-color: #ddd;
-    color: #333;
-    padding: 8px 14px;
-    border-radius: 30px;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background-color: #ddd;
+            color: #333;
+            padding: 8px 14px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
 
-.btn-back:hover {
-    background-color: #bbb;
-    transform: scale(1.05);
-}
+        .btn-back:hover {
+            background-color: #bbb;
+            transform: scale(1.05);
+        }
 
 
 
@@ -146,7 +152,6 @@ require_once('../../Controller/admincontroller/adduser.php');
             text-align: center;
         }
     </style>
-
 </head>
 
 <body>
@@ -158,54 +163,55 @@ require_once('../../Controller/admincontroller/adduser.php');
         <!-- Nội dung form -->
         <div class="main-content">
             <div class="form-container">
-                <h2>Thêm Người Dùng</h2>
+                <h2>Chỉnh sửa Người Dùng</h2>
+
                 <!-- Thông báo lỗi -->
                 <?php if (!empty($error)): ?>
                     <div class="alert alert-danger" style="color: red; margin-bottom: 15px;">
                         <?php echo $error; ?>
                     </div>
                 <?php endif; ?>
-                <!-- Form thêm người dùng -->
-                <form method="POST" action="adduser.php">
+
+                <!-- Form chỉnh sửa người dùng -->
+                <form method="POST" action="edit_user.php?id=<?php echo $user['id_user']; ?>">
                     <div class="form-group">
                         <label for="username">Tên đăng nhập</label>
-                        <input type="text" id="username" name="username" class="form-control" placeholder="Nhập tên đăng nhập" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password">Mật khẩu</label>
-                        <input type="password" id="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required>
+                        <input type="text" id="username" name="username" class="form-control"
+                            value="<?php echo htmlspecialchars($user['username']); ?>" required>
                     </div>
 
                     <div class="form-group">
                         <label for="fullname">Họ và tên</label>
-                        <input type="text" id="fullname" name="fullname" class="form-control" placeholder="Nhập họ và tên" required>
+                        <input type="text" id="fullname" name="fullname" class="form-control"
+                            value="<?php echo htmlspecialchars($user['fullname']); ?>" required>
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email" class="form-control" placeholder="Nhập email" required>
+                        <input type="email" id="email" name="email" class="form-control"
+                            value="<?php echo htmlspecialchars($user['email']); ?>" required>
                     </div>
 
                     <div class="form-group">
                         <label for="phone">Số điện thoại</label>
-                        <input type="tel" id="phone" name="phone" class="form-control" placeholder="Nhập số điện thoại" required>
+                        <input type="tel" id="phone" name="phone" class="form-control"
+                            value="<?php echo htmlspecialchars($user['phone']); ?>" required>
                     </div>
 
-                    <!-- Chọn vai trò -->
                     <div class="form-group">
                         <label for="role">Vai trò</label>
                         <select id="role" name="role" class="form-control" required>
-                            <option selected disabled>Chọn vai trò</option>
+                            <option disabled>Chọn vai trò</option>
                             <?php foreach ($roles as $role): ?>
-                                <option value="<?php echo $role['id_role']; ?>"><?php echo $role['name_role']; ?></option>
+                                <option value="<?php echo $role['id_role']; ?>"
+                                    <?php if ($role['id_role'] == $user['id_role']) echo 'selected'; ?>>
+                                    <?php echo $role['name_role']; ?>
+                                </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
 
-                    <!-- Nút thêm người dùng -->
-                    <button type="submit" class="btn-submit">Thêm Người Dùng</button>
-                    <!-- Nút quay lại -->
+                    <button type="submit" class="btn-submit">Cập nhật Người Dùng</button>
                     <a href="javascript:history.back()" class="btn-back">Quay Lại</a>
                 </form>
             </div>

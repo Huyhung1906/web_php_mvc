@@ -46,6 +46,11 @@ class UserModel {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    public function updateUser($id, $username, $fullname, $email, $phone, $role) {
+        $sql = "UPDATE user SET username = ?, fullname = ?, email = ?, phone = ?, id_role = ? WHERE id_user = ?";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([$username, $fullname, $email, $phone, $role, $id]);
+    }
     
     // Get user addresses
     public function getUserAddresses($userId) {
@@ -59,6 +64,13 @@ class UserModel {
             error_log("Error getting user addresses: " . $e->getMessage());
             return [];
         }
+    }
+    // Get user by ID
+    public function getUserById2($userId) {
+        $stmt = $this->conn->prepare("SELECT id_user, username,fullname,email,phone, id_role, is_active FROM user WHERE id_user = :id_user");
+        $stmt->bindParam(':id_user', $userId);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
     /**

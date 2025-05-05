@@ -87,4 +87,12 @@ class AdminModel {
         }
         return $roles;
     }
+    public function getAllUsersWithRole() {
+        $sql = "SELECT user.*, role.name_role 
+                FROM user 
+                JOIN role ON user.id_role = role.id_role";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
