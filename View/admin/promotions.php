@@ -11,12 +11,13 @@
      <!-- Sidebar CSS -->
      <link rel="stylesheet" href="slidebar.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background-color: #f4f4f9; }
+* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }        body { background-color: #f4f4f9; }
         .container { display: flex; min-height: 100vh; }
-        .sidebar { width: 50px; background-color: #1a1f37; color: white; padding: 20px 0; text-align: center; }
-        .sidebar a { color: #a3a6b4; display: block; padding: 15px; text-decoration: none; }
-        .sidebar a:hover, .sidebar a.active { color: white; background-color: #2c3149; }
         .main-content { flex-grow: 1; padding: 20px; }
         .header { 
             display: flex; 
@@ -119,6 +120,28 @@
             border: 1.5px solid #388e3c;
             background: #fff;
         }
+        .edit-link i {
+    color: #2980b9; /* Xanh cho biểu tượng bút */
+    transition: color 0.3s ease;
+}
+
+.delete-link i {
+    color: #dc3545; /* Đỏ cho biểu tượng thùng rác */
+    transition: color 0.3s ease;
+}
+        .no-permission i {
+            color: gray;
+            /* Màu xám cho biểu tượng */
+            pointer-events: none;
+            /* Ngăn không cho người dùng click vào */
+        }
+
+        .no-permission-link {
+            color: gray !important;
+            /* Màu xám cho liên kết */
+            pointer-events: none;
+            /* Ngăn không cho người dùng click vào */
+        }
     </style>
 </head>
 <body>
@@ -130,8 +153,17 @@
                 <input type="text" name="search" placeholder="Tìm kiếm khuyến mãi..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
                 <button type="submit">Tìm</button>
             </form>
+            <?php if ($check->canPerformAction($_SESSION['id_role'], 24)) { ?>
             <a href="promotion_product.php" class="add-button">Sản Phẩm Khuyến Mãi</a>
-            <a href="add_promotion.php" class="add-button">+ Thêm Khuyến mãi</a>
+            <?php } else { ?>
+                <a href="javascript:void(0);" class="no-permission-link">Sản Phẩm Khuyến Mãi</a> <!-- Liên kết màu xám khi không có quyền -->
+                <?php } ?>
+           
+            <?php if ($check->canPerformAction($_SESSION['id_role'], 16)) { ?>
+                <a href="add_promotion.php" class="add-button">+ Thêm Khuyến mãi</a>
+            <?php } else { ?>
+                <a href="javascript:void(0);" class="no-permission-link">+ Thêm Khuyến mãi</a> <!-- Liên kết màu xám khi không có quyền -->
+                <?php } ?>
         </div>
         <table class="table">
             <thead>
@@ -174,7 +206,13 @@
                                 </form>
                             </td>
                             <td class="actions">
+                            <?php if ($check->canPerformAction($_SESSION['id_role'], 19)) { ?>
                                 <a href="promotions.php?delete=<?php echo $promotion['id_promotions']; ?>" class="delete" onclick="return confirm('Xóa khuyến mãi này?');"><i class="fas fa-trash"></i></a>
+                                <?php } else { ?>
+                                    <a href="javascript:void(0);" class="no-permission">
+                                        <i class="fas fa-trash"></i> <!-- Biểu tượng thùng rác màu xám -->
+                                    </a>
+                                <?php } ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>

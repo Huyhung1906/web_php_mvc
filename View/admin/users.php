@@ -145,6 +145,15 @@ require_once('../../Controller/admincontroller/usercontroller.php');
         .actions a.edit {
             color: #2980b9;
         }
+        .edit-link i {
+    color: #2980b9; /* Xanh cho biểu tượng bút */
+    transition: color 0.3s ease;
+}
+
+.delete-link i {
+    color: #dc3545; /* Đỏ cho biểu tượng thùng rác */
+    transition: color 0.3s ease;
+}
 
         @media (max-width: 768px) {
             .main-content {
@@ -167,6 +176,21 @@ require_once('../../Controller/admincontroller/usercontroller.php');
                 padding: 10px 6px;
             }
         }
+
+        .no-permission i {
+            color: gray;
+            /* Màu xám cho biểu tượng */
+            pointer-events: none;
+            /* Ngăn không cho người dùng click vào */
+        }
+
+        .no-permission-link {
+            color: gray !important;
+            /* Màu xám cho liên kết */
+            pointer-events: none;
+            /* Ngăn không cho người dùng click vào */
+            background-color: gray;
+        }
     </style>
 </head>
 
@@ -180,7 +204,11 @@ require_once('../../Controller/admincontroller/usercontroller.php');
                     <input type="text" name="search" placeholder="Tìm kiếm user..." value="<?php echo htmlspecialchars($search); ?>">
                     <button type="submit">Tìm</button>
                 </form>
-                <a href="adduser.php">+ Thêm User</a>
+                <?php if ($model->canPerformAction($_SESSION['id_role'], 4)) { ?>
+                    <a href="adduser.php">+ Thêm User</a> <!-- Liên kết thêm user -->
+                <?php } else { ?>
+                    <a href="javascript:void(0);" class="no-permission-link">+ Thêm User</a> <!-- Liên kết màu xám khi không có quyền -->
+                <?php } ?>
             </div>
 
             <table class="table">
@@ -203,8 +231,27 @@ require_once('../../Controller/admincontroller/usercontroller.php');
                             <td><?php echo htmlspecialchars($user['phone']); ?></td>
                             <td><?php echo htmlspecialchars($user['name_role']); ?></td>
                             <td class="actions">
-                                <a href="edit_user.php?id=<?php echo $user['id_user']; ?>"><i class="fas fa-edit"></i></a>
-                                <a href="users.php?delete=<?php echo $user['id_user']; ?>" class="delete" onclick="return confirm('Xóa user này?');"><i class="fas fa-trash"></i></a>
+                                <?php if ($model->canPerformAction($_SESSION['id_role'], 5)) { ?>
+                                    <a href="edit_user.php?id=<?php echo $user['id_user']; ?>" class="edit-link">
+                                        <i class="fas fa-edit"></i> <!-- Biểu tượng bút -->
+                                    </a>
+                                <?php } else { ?>
+                                    <a href="javascript:void(0);" class="no-permission">
+                                        <i class="fas fa-edit"></i> <!-- Biểu tượng bút màu xám -->
+                                    </a>
+                                <?php } ?>
+
+                                <!-- Kiểm tra quyền để hiển thị nút xóa -->
+                                <?php if ($model->canPerformAction($_SESSION['id_role'], 7)) { ?>
+                                    <a href="users.php?delete=<?php echo $user['id_user']; ?>" onclick="return confirm('Bạn có chắc chắn muốn xóa người dùng này?');" class="delete-link">
+                                        <i class="fas fa-trash"></i> <!-- Biểu tượng thùng rác -->
+                                    </a>
+                                <?php } else { ?>
+                                    <a href="javascript:void(0);" class="no-permission">
+                                        <i class="fas fa-trash"></i> <!-- Biểu tượng thùng rác màu xám -->
+                                    </a>
+                                <?php } ?>
+
                             </td>
                         </tr>
                     <?php } ?>
