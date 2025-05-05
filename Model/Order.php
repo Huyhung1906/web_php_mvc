@@ -81,8 +81,12 @@ class Order
                        DATE_FORMAT(i.InvoiceDate, '%Y-%m-%d %H:%i:%s') as created_at,
                        i.id_invoice as id_order,
                        i.CustomerAddress as shipping_address,
-                       i.Status as payment_method,
-                       'Completed' as status,
+                       i.Status,
+                       CASE 
+                           WHEN i.Status = 'Cancelled' THEN 'Cancelled'
+                           WHEN i.Status = 'Pending' THEN 'Pending'
+                           ELSE 'Completed'
+                       END as status,
                        i.TotalAmount as total_amount
                 FROM invoice i
                 WHERE i.id_user = ?
@@ -100,7 +104,7 @@ class Order
             // Get order items for each order (using invoicedetail table)
             foreach ($results as $order) {
                 $orderId = $order['id_invoice'];
-                error_log("Processing order ID: $orderId");
+                error_log("Processing order ID: $orderId, Status: " . $order['Status']);
                 
                 try {
                     $stmtItems = $conn->prepare("
@@ -177,13 +181,36 @@ class Order
     }
     
 
+    /**
+     * Cancel the most recent order for a user
+     * 
+     * @param int $userId The user ID
+     * @return bool Success status
+     */
     public function cancelMostRecentOrder($userId) {
         $order = $this->getMostRecentOrder($userId);
         
         if (!$order) {
+            error_log("No recent order found for user ID: $userId");
             return false;
         }
         
-        return $this->deleteOrder($order['id_invoice']);
+        // Thay vì xóa đơn hàng, cập nhật trạng thái thành "Cancelled"
+        try {
+            global $conn;
+            $stmt = $conn->prepare("UPDATE invoice SET Status = 'Cancelled' WHERE id_invoice = ?");
+            $result = $stmt->execute([$order['id_invoice']]);
+            
+            if ($result) {
+                error_log("Order ID: " . $order['id_invoice'] . " has been cancelled successfully");
+            } else {
+                error_log("Failed to cancel order ID: " . $order['id_invoice']);
+            }
+            
+            return $result;
+        } catch (Exception $e) {
+            error_log("Error cancelling order: " . $e->getMessage());
+            return false;
+        }
     }
 }

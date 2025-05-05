@@ -91,56 +91,6 @@ $userOrders = $orderModel->getOrdersByUser($userId);
 							<p><strong>Account Type:</strong> <?php echo ($_SESSION['id_role'] == 1) ? 'Administrator' : 'User'; ?></p>
 						</div>
 					</div>
-					<div class="col-md-8">
-						<div class="profile-card">
-							<h3>Recent Orders</h3>
-							<?php if (empty($userOrders)): ?>
-								<p>You have not placed any orders yet.</p>
-								<a href="index.php" class="btn btn-primary">Shop now</a>
-							<?php else: ?>
-								<div class="table-responsive">
-									<table class="table table-bordered">
-										<thead>
-											<tr>
-												<th>Order ID</th>
-												<th>Date</th>
-												<th>Shipping Address</th>
-												<th>Payment Method</th>
-												<th>Total</th>
-												<th>Details</th>
-											</tr>
-										</thead>
-										<tbody>
-											<?php foreach ($userOrders as $order): ?>
-												<tr>
-													<td><?php echo $order['id']; ?></td>
-													<td><?php echo $order['created_at']; ?></td>
-													<td><?php echo htmlspecialchars($order['address']); ?></td>
-													<td><?php echo htmlspecialchars($order['payment_method']); ?></td>
-													<td><?php echo number_format($order['total'], 0, ',', '.'); ?> đ</td>
-													<td>
-														<ul style="padding-left: 18px; margin-bottom: 0;">
-															<?php foreach ($order['items'] as $item): ?>
-																<li>
-																	<?php echo htmlspecialchars($item['product_name']); ?>
-																	(Qty: <?php echo $item['quantity']; ?>, Price: <?php echo number_format($item['price'], 0, ',', '.'); ?> đ)
-																	<button class="btn btn-sm btn-info warranty-btn"
-																		data-order-item-id="<?php echo $item['id']; ?>"
-																		data-product-name="<?php echo htmlspecialchars($item['product_name']); ?>">
-																		Warranty
-																	</button>
-																</li>
-															<?php endforeach; ?>
-														</ul>
-													</td>
-												</tr>
-											<?php endforeach; ?>
-										</tbody>
-									</table>
-								</div>
-							<?php endif; ?>
-						</div>
-					</div>
 				</div>
 				<div class="row">
 					<div class="col-md-12">

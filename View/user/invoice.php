@@ -189,7 +189,9 @@ try {
                                             <div class="col-md-4 text-right">
                                                 <?php 
                                                 $statusClass = '';
-                                                switch(strtolower($order['status'])) {
+                                                $statusText = htmlspecialchars($order['status'] ?? 'Pending');
+                                                
+                                                switch(strtolower($statusText)) {
                                                     case 'pending':
                                                         $statusClass = 'status-pending';
                                                         break;
@@ -199,9 +201,11 @@ try {
                                                     case 'cancelled':
                                                         $statusClass = 'status-cancelled';
                                                         break;
+                                                    default:
+                                                        $statusClass = 'status-pending';
                                                 }
                                                 ?>
-                                                <span class="status-badge <?php echo $statusClass; ?>"><?php echo htmlspecialchars($order['status']); ?></span>
+                                                <span class="status-badge <?php echo $statusClass; ?>"><?php echo $statusText; ?></span>
                                             </div>
                                         </div>
                                     </div>
@@ -230,7 +234,7 @@ try {
                                         <?php endforeach; ?>
                                     </div>
                                     <div class="order-footer">
-                                        <p style="font-size: 14px;">Payment Method: <span style="font-weight: 600;"><?php echo htmlspecialchars($order['payment_method']); ?></span></p>
+                                        <p style="font-size: 14px;">Payment Method: <span style="font-weight: 600;"><?php echo htmlspecialchars($order['Status']); ?></span></p>
                                         <p style="font-size: 14px;">Shipping Address: <span style="font-weight: 600;"><?php echo htmlspecialchars($order['shipping_address']); ?></span></p>
                                         <p style="font-weight: 700; font-size: 18px; color: #00c9a7; margin-top: 10px;">
                                             Total: <?php echo number_format($order['total_amount'], 0, ',', '.'); ?> đ

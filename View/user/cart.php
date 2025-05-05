@@ -247,18 +247,7 @@ if (!isset($cartItems)) {
 					<div class="total-wrap">
 						<div class="row">
 							<div class="col-sm-8">
-								<?php if (isset($cartItems) && !empty($cartItems)): ?>
-                                    <form action="#">
-                                        <div class="row form-group">
-                                            <div class="col-sm-9">
-                                                <input type="text" name="coupon" id="coupon-code" class="form-control input-number" placeholder="Your Coupon Number...">
-                                            </div>
-                                            <div class="col-sm-3">
-                                                <input type="button" value="Apply Coupon" class="btn btn-primary" id="apply-coupon">
-                                            </div>
-                                        </div>
-                                    </form>
-                                <?php endif; ?>
+								<!-- Phần form nhập mã giảm giá đã được xóa -->
 							</div>
 							<div class="col-sm-4 text-center">
 								<div class="total">
@@ -267,9 +256,6 @@ if (!isset($cartItems)) {
 										<p><span style="font-weight: 500;">Delivery:</span> <span style="font-weight: 600;">0 đ</span></p>
 										<?php if ($discount > 0): ?>
 										<p><span style="font-weight: 500;">Discount:</span> <span id="discount" style="font-weight: 600; color: #f45d01;"><?php echo number_format($discount ?? 0, 0, ',', '.'); ?> đ</span></p>
-										<?php endif; ?>
-										<?php if (isset($_SESSION['applied_coupon'])): ?>
-										<p><span style="font-weight: 500;">Coupon (<?php echo htmlspecialchars($_SESSION['applied_coupon']['code']); ?>):</span> <span id="coupon-discount" style="font-weight: 600; color: #f45d01;"><?php echo number_format($_SESSION['applied_coupon']['discount'] ?? 0, 0, ',', '.'); ?> đ</span></p>
 										<?php endif; ?>
 									</div>
 									<div class="grand-total">
@@ -354,51 +340,9 @@ if (!isset($cartItems)) {
                 }
             });
             
-            // Apply coupon functionality
-            $('#apply-coupon').on('click', function() {
-                var couponCode = $('#coupon-code').val().trim();
-                
-                if (!couponCode) {
-                    alert('Please enter a coupon code.');
-                    return;
-                }
-                
-                $.ajax({
-                    url: '/web_php_mvc/process_cart.php',
-                    type: 'POST',
-                    dataType: 'json',
-                    data: {
-                        action: 'apply_coupon',
-                        coupon: couponCode
-                    },
-                    success: function(response) {
-                        if (response.status === 'success') {
-                            // Format numbers for display
-                            var formattedDiscount = new Intl.NumberFormat('vi-VN').format(response.total_discount);
-                            var formattedFinal = new Intl.NumberFormat('vi-VN').format(response.final_total);
-                            
-                            // Update displayed values
-                            $('#discount').text(formattedDiscount + ' đ');
-                            $('#total').text(formattedFinal + ' đ');
-                            
-                            // Show success message
-                            alert('Coupon applied: ' + response.coupon.name);
-                            
-                            // Reload the page to show updated totals
-                            location.reload();
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function() {
-                        alert('An error occurred. Please try again later.');
-                    }
-                });
-            });
-            
             // Remove most recent order
             $('#remove-recent-order').on('click', function() {
-                if (confirm('Are you sure you want to cancel your most recent order?')) {
+                if (confirm('Bạn có chắc chắn muốn hủy đơn hàng gần nhất không?')) {
                     $.ajax({
                         url: '/web_php_mvc/process_cart.php',
                         type: 'POST',
@@ -408,14 +352,24 @@ if (!isset($cartItems)) {
                         },
                         success: function(response) {
                             if (response.status === 'success') {
-                                alert('Your most recent order has been cancelled.');
-                                location.reload();
+                                // Hiển thị thông báo thành công
+                                alert(response.message);
+                                
+                                // Nếu người dùng đang ở trang invoice, reload để cập nhật trạng thái
+                                if (window.location.pathname.includes('invoice.php')) {
+                                    location.reload();
+                                } else {
+                                    // Nếu không, hỏi người dùng có muốn chuyển đến trang invoice để xem đơn hàng đã hủy không
+                                    if (confirm('Bạn có muốn xem đơn hàng đã hủy trong trang lịch sử đơn hàng không?')) {
+                                        window.location.href = '/web_php_mvc/View/user/invoice.php';
+                                    }
+                                }
                             } else {
-                                alert(response.message || 'Failed to cancel order.');
+                                alert(response.message || 'Có lỗi xảy ra khi hủy đơn hàng.');
                             }
                         },
                         error: function() {
-                            alert('An error occurred. Please try again later.');
+                            alert('Có lỗi xảy ra khi kết nối với máy chủ. Vui lòng thử lại sau.');
                         }
                     });
                 }

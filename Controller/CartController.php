@@ -355,10 +355,6 @@ class CartController {
                 $this->handleRemoveRecentOrder($userId);
                 break;
                 
-            case 'apply_coupon':
-                $this->applyCoupon();
-                break;
-                
             default:
                 echo json_encode([
                     'status' => 'error',
@@ -420,119 +416,39 @@ class CartController {
         require_once __DIR__ . '/../Model/Order.php';
         
         $orderModel = new Order();
+        
+        // Lấy thông tin đơn hàng gần nhất trước khi hủy để hiển thị thông báo
+        $recentOrder = $orderModel->getMostRecentOrder($userId);
+        
+        if (!$recentOrder) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Không tìm thấy đơn hàng gần đây nào'
+            ]);
+            return;
+        }
+        
+        // Kiểm tra nếu đơn hàng đã bị hủy trước đó
+        if ($recentOrder['Status'] === 'Cancelled') {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Đơn hàng này đã bị hủy trước đó'
+            ]);
+            return;
+        }
+        
         $result = $orderModel->cancelMostRecentOrder($userId);
         
         if ($result) {
             echo json_encode([
                 'status' => 'success',
-                'message' => 'Most recent order has been cancelled'
+                'message' => 'Đơn hàng #' . $recentOrder['id_invoice'] . ' đã được hủy thành công',
+                'order_id' => $recentOrder['id_invoice']
             ]);
         } else {
             echo json_encode([
                 'status' => 'error',
-                'message' => 'No recent orders found or failed to cancel order'
-            ]);
-        }
-    }
-
-    /**
-     * Apply coupon or promotion code
-     */
-    public function applyCoupon() {
-        // Check if user is logged in
-        if (!isset($_SESSION['id_user']) || empty($_SESSION['id_user'])) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'You must be logged in to apply a coupon'
-            ]);
-            return;
-        }
-        
-        $userId = $_SESSION['id_user'];
-        $couponCode = isset($_POST['coupon']) ? trim($_POST['coupon']) : '';
-        
-        if (empty($couponCode)) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Please enter a coupon code'
-            ]);
-            return;
-        }
-        
-        // Check if the coupon exists and is valid
-        try {
-            global $conn;
-            $query = "SELECT * FROM promotions 
-                      WHERE promo_code = ? 
-                      AND status = 'active' 
-                      AND start_date <= CURDATE() 
-                      AND end_date >= CURDATE()";
-            
-            $stmt = $conn->prepare($query);
-            $stmt->execute([$couponCode]);
-            $coupon = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$coupon) {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Invalid or expired coupon code'
-                ]);
-                return;
-            }
-            
-            // Get cart items with product-specific promotions already applied
-            $cartItems = $this->cartModel->applyPromotions($userId);
-            
-            // Calculate initial totals
-            $originalSubTotal = 0;
-            $currentDiscount = 0;
-            
-            foreach ($cartItems as $item) {
-                $originalSubTotal += isset($item['original_price']) ? ($item['original_price'] * $item['quantity']) : ($item['price'] * $item['quantity']);
-                if (isset($item['discount'])) {
-                    $currentDiscount += ($item['discount'] * $item['quantity']);
-                }
-            }
-            
-            // Calculate coupon discount
-            $couponDiscount = 0;
-            if ($coupon['discount_type'] == 'percentage') {
-                $couponDiscount = ($originalSubTotal - $currentDiscount) * ($coupon['discount_value'] / 100);
-            } else { // fixed amount
-                $couponDiscount = min($coupon['discount_value'], ($originalSubTotal - $currentDiscount));
-            }
-            
-            // Calculate final values
-            $totalDiscount = $currentDiscount + $couponDiscount;
-            $finalTotal = $originalSubTotal - $totalDiscount;
-            
-            // Store coupon in session
-            $_SESSION['applied_coupon'] = [
-                'code' => $couponCode,
-                'discount' => $couponDiscount,
-                'promotion' => $coupon
-            ];
-            
-            echo json_encode([
-                'status' => 'success',
-                'message' => 'Coupon applied successfully',
-                'original_total' => $originalSubTotal,
-                'product_discount' => $currentDiscount,
-                'coupon_discount' => $couponDiscount,
-                'total_discount' => $totalDiscount,
-                'final_total' => $finalTotal,
-                'coupon' => [
-                    'name' => $coupon['name_promotion'],
-                    'discount_type' => $coupon['discount_type'],
-                    'discount_value' => $coupon['discount_value']
-                ]
-            ]);
-            
-        } catch (Exception $e) {
-            error_log("Error applying coupon: " . $e->getMessage());
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'An error occurred while applying the coupon'
+                'message' => 'Không thể hủy đơn hàng, vui lòng thử lại sau'
             ]);
         }
     }
