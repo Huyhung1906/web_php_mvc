@@ -11,11 +11,6 @@ class ProductFilterController {
         $this->filterModel = new ProductFilter();
     }
     
-    /**
-     * Get filtered sneaker shoes
-     * 
-     * @return array Filtered sneaker shoes with pagination
-     */
     public function getFilteredSneakers() {
         $filters = $this->filterModel->parseFilterParams();
         $sizes = $this->filterModel->getAvailableSizes();
@@ -32,11 +27,6 @@ class ProductFilterController {
         ];
     }
     
-    /**
-     * Get filtered leather shoes
-     * 
-     * @return array Filtered leather shoes with pagination
-     */
     public function getFilteredLeatherShoes() {
         $filters = $this->filterModel->parseFilterParams();
         $sizes = $this->filterModel->getAvailableSizes();
@@ -53,11 +43,7 @@ class ProductFilterController {
         ];
     }
     
-    /**
-     * Get filtered children shoes
-     * 
-     * @return array Filtered children shoes with pagination
-     */
+
     public function getFilteredChildrenShoes() {
         $filters = $this->filterModel->parseFilterParams();
         $sizes = $this->filterModel->getAvailableSizes();

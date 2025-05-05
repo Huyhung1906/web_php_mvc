@@ -520,14 +520,7 @@ class Product {
             return null;
         }
     }
-
-    /**
-     * Helper function to build pagination links
-     * 
-     * @param array $pagination Pagination data
-     * @param array $filters Current filters
-     * @return string HTML for pagination links
-     */
+    
     public function buildPaginationLinks($pagination, $filters) {
         $currentPage = $pagination['current_page'];
         $lastPage = $pagination['last_page'];

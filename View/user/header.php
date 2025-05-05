@@ -46,6 +46,7 @@ $username = $isLoggedIn ? $_SESSION['username'] : '';
                         <li><a href="/web_php_mvc/View/user/leather-shoes.php">Giày da</a></li>
                         <li><a href="/web_php_mvc/View/user/children-shoes.php">Giày trẻ em</a></li>
                         <li class="cart"><a href="/web_php_mvc/View/user/cart.php"><i class="icon-shopping-cart"></i> Cart</a></li>
+                        <li class="cart"><a href="/web_php_mvc/View/user/invoice.php"><i class="icon-file-text"></i> Invoice</a></li>
                         <li class="cart">
                             <?php if ($isLoggedIn): ?>
                                 <a href="/web_php_mvc/View/user/profile.php"><i class="icon-user"></i> <?php echo htmlspecialchars($username); ?></a>

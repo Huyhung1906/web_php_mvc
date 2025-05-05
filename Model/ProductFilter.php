@@ -7,11 +7,6 @@ class ProductFilter {
         $this->db = $conn;
     }
     
-    /**
-     * Parse filter parameters from request
-     * 
-     * @return array Array of filter parameters
-     */
     public function parseFilterParams() {
         $filters = [];
         
@@ -58,24 +53,11 @@ class ProductFilter {
         return $filters;
     }
     
-    /**
-     * Get available sizes for products
-     * 
-     * @return array Array of available sizes
-     */
     public function getAvailableSizes() {
         // Return default sizes without checking database
         return ['36', '37', '38', '39', '40', '41', '42', '43'];
     }
     
-    /**
-     * Apply filters to all product queries
-     * 
-     * @param string $query The base SQL query
-     * @param array $params Query parameters
-     * @param array $filters Filter parameters
-     * @return array Modified query and parameters
-     */
     public function applyFilters($query, $params, $filters) {
         if (!empty($filters['size'])) {
             // Join with the size table to filter by size

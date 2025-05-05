@@ -27,7 +27,7 @@ class LoginController {
                         } else {
                             $_SESSION['admin_logged_in'] = true;
                             header("Location: ../admin/index.php");
-                            exit();
+                            exit(); 
                         }
                     }
                 } else {

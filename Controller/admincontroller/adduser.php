@@ -33,6 +33,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Hiển thị view thêm người dùng
-include '../../View/admin/adduser.php';
 ?>

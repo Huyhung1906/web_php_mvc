@@ -144,7 +144,9 @@ class CartController {
         }
         
         $userId = $_SESSION['id_user'];
-        $cartItems = $this->cartModel->getCart($userId);
+        
+        // Get cart items with promotions applied
+        $cartItems = $this->cartModel->applyPromotions($userId);
         
         // Calculate cart totals
         $subTotal = 0;
@@ -152,13 +154,15 @@ class CartController {
         $total = 0;
         
         foreach ($cartItems as $item) {
-            $subTotal += $item['total_price'];
+            $subTotal += isset($item['original_price']) ? ($item['original_price'] * $item['quantity']) : $item['total_price'];
+            
+            // Calculate discount if promotion was applied
+            if (isset($item['discount'])) {
+                $discount += ($item['discount'] * $item['quantity']);
+            }
+            
+            $total += $item['total_price'];
         }
-        
-        // Apply discount logic if needed
-        // $discount = ...
-        
-        $total = $subTotal - $discount;
         
         // Load the cart view with data
         include_once 'View/user/cart.php';
@@ -314,7 +318,20 @@ class CartController {
      * Process AJAX requests for cart operations
      */
     public function handleAjaxRequest() {
-        $action = isset($_POST['action']) ? $_POST['action'] : '';
+        // Ensure we are handling an AJAX request
+        header('Content-Type: application/json');
+        
+        // Check if user is logged in
+        if (!isset($_SESSION['id_user']) || empty($_SESSION['id_user'])) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'User not logged in'
+            ]);
+            exit;
+        }
+        
+        $userId = $_SESSION['id_user'];
+        $action = $_POST['action'] ?? '';
         
         switch ($action) {
             case 'add':
@@ -332,6 +349,10 @@ class CartController {
                 
             case 'clear':
                 $this->clearCart();
+                break;
+                
+            case 'remove_recent_order':
+                $this->handleRemoveRecentOrder($userId);
                 break;
                 
             default:
@@ -384,6 +405,52 @@ class CartController {
 
     public function createOrder($userId, $address, $paymentMethod, $cartItems, $total) {
         // ... như hướng dẫn các bước trước ...
+    }
+
+    /**
+     * Handle the remove_recent_order action
+     * 
+     * @param int $userId User ID
+     */
+    private function handleRemoveRecentOrder($userId) {
+        require_once __DIR__ . '/../Model/Order.php';
+        
+        $orderModel = new Order();
+        
+        // Lấy thông tin đơn hàng gần nhất trước khi hủy để hiển thị thông báo
+        $recentOrder = $orderModel->getMostRecentOrder($userId);
+        
+        if (!$recentOrder) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Không tìm thấy đơn hàng gần đây nào'
+            ]);
+            return;
+        }
+        
+        // Kiểm tra nếu đơn hàng đã bị hủy trước đó
+        if ($recentOrder['Status'] === 'Cancelled') {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Đơn hàng này đã bị hủy trước đó'
+            ]);
+            return;
+        }
+        
+        $result = $orderModel->cancelMostRecentOrder($userId);
+        
+        if ($result) {
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Đơn hàng #' . $recentOrder['id_invoice'] . ' đã được hủy thành công',
+                'order_id' => $recentOrder['id_invoice']
+            ]);
+        } else {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Không thể hủy đơn hàng, vui lòng thử lại sau'
+            ]);
+        }
     }
 }
 
