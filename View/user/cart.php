@@ -262,7 +262,7 @@ if (!isset($cartItems)) {
 									</div>
                                     <?php if (isset($cartItems) && !empty($cartItems)): ?>
                                         <div class="mt-3">
-                                            <a href="/web_php_mvc/checkout" class="btn btn-primary btn-block" style="font-size: 16px; padding: 12px;">Proceed to Checkout</a>
+                                        <a href="/web_php_mvc/View/user/payment.php" class="btn btn-primary btn-block" style="font-size: 16px; padding: 12px;">Proceed to Checkout</a>
                                         </div>
                                     <?php endif; ?>
 								</div>
@@ -293,8 +293,9 @@ if (!isset($cartItems)) {
 	<script src="/web_php_mvc/public/js/jquery.flexslider-min.js"></script>
 	<!-- Owl carousel -->
 	<script src="/web_php_mvc/public/js/owl.carousel.min.js"></script>
-	<!-- Magnific Popup -->
+	<!-- Magnific Popup plugin -->
 	<script src="/web_php_mvc/public/js/jquery.magnific-popup.min.js"></script>
+	<!-- Your custom options -->
 	<script src="/web_php_mvc/public/js/magnific-popup-options.js"></script>
 	<!-- Date Picker -->
 	<script src="/web_php_mvc/public/js/bootstrap-datepicker.js"></script>

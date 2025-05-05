@@ -1,5 +1,6 @@
 <?php
 require_once('../../config/config.php'); // Kết nối database
+require_once __DIR__ . '/../Model/Order.php';
 
 class UserModel {
     private $conn;

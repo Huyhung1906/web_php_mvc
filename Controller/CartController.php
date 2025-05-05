@@ -1,6 +1,15 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/../Model/Cart.php';
 require_once __DIR__ . '/../Model/Product.php';
+require_once __DIR__ . '/../Model/Order.php';
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 class CartController {
     private $cartModel;
@@ -332,4 +341,62 @@ class CartController {
                 ]);
         }
     }
-} 
+    
+    public function placeOrder() {
+        if (!isset($_SESSION['id_user']) || empty($_SESSION['id_user'])) {
+            header("Location: /web_php_mvc/View/auth/login.php");
+            exit;
+        }
+
+        $userId = $_SESSION['id_user'];
+        $cartItems = $this->cartModel->getCart($userId);
+
+        $address = $_POST['address'] ?? '';
+        $address_new = trim($_POST['address_new'] ?? '');
+        $paymentMethod = $_POST['payment_method'] ?? '';
+        $total = 0;
+        foreach ($cartItems as $item) {
+            $total += $item['total_price'];
+        }
+
+        $finalAddress = $address_new !== '' ? $address_new : $address;
+
+        if (empty($finalAddress) || empty($paymentMethod) || empty($cartItems)) {
+            $_SESSION['order_error'] = "Please fill in all required information and check your cart!";
+            header("Location: /web_php_mvc/View/user/payment.php");
+            exit;
+        }
+
+        $orderModel = new Order();
+        $orderId = $orderModel->createOrder($userId, $finalAddress, $paymentMethod, $cartItems, $total);
+
+        if ($orderId) {
+            $this->cartModel->clearCart($userId);
+            $_SESSION['order_success'] = "Order placed successfully!";
+            header("Location: /web_php_mvc/View/user/profile.php");
+            exit;
+        } else {
+            $_SESSION['order_error'] = "An error occurred while placing the order. Please try again!";
+            header("Location: /web_php_mvc/View/user/payment.php");
+            exit;
+        }
+    }
+
+    public function createOrder($userId, $address, $paymentMethod, $cartItems, $total) {
+        // ... như hướng dẫn các bước trước ...
+    }
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'placeOrder') {
+    $controller = new CartController();
+    $controller->placeOrder();
+}
+
+$userId = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null;
+if (!$userId) {
+    header("Location: /web_php_mvc/View/auth/login.php");
+    exit;
+}
+$orderModel = new Order();
+$userOrders = $orderModel->getOrdersByUser($userId);
+
