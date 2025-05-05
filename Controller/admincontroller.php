@@ -23,4 +23,3 @@ if (isset($_GET['delete'])) {
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $users = $model->getUsers($search);
 
-include '../../view/admin/index.php';

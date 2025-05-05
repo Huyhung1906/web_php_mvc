@@ -19,19 +19,28 @@ class AdminModel {
         
     }
     public function getUsers($search = '') {
-        $queryStr = "SELECT * FROM user";
+        // Câu truy vấn kết hợp bảng user và bảng role
+        $queryStr = "SELECT user.*, role.name_role 
+                     FROM user
+                     LEFT JOIN role ON user.id_role = role.id_role"; // LEFT JOIN để lấy thông tin role ngay cả khi user không có role
+    
         if ($search) {
-            $queryStr .= " WHERE username LIKE :search OR email LIKE :search";
+            $queryStr .= " WHERE (username LIKE :search OR email LIKE :search)"; // Đảm bảo điều kiện tìm kiếm đúng
         }
-
+    
         $query = $this->conn->prepare($queryStr);
+    
         if ($search) {
+            // Gán giá trị cho tham số :search
             $query->bindValue(':search', "%$search%", PDO::PARAM_STR);
         }
-
+    
         $query->execute();
+    
+        // Trả về tất cả các kết quả
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
+    
 
     public function deleteUser($id) {
         // Xóa các chi tiết bảo hành liên quan
@@ -86,5 +95,13 @@ class AdminModel {
             $roles[] = $row;
         }
         return $roles;
+    }
+    public function getAllUsersWithRole() {
+        $sql = "SELECT user.*, role.name_role 
+                FROM user 
+                JOIN role ON user.id_role = role.id_role";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
