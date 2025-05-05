@@ -75,10 +75,13 @@ class InvoiceDetailModel {
 
     public function getAllVariants($invoiceId) {
         $stmt = $this->conn->prepare("
-            SELECT id_variant, id_product 
-            FROM product_variant 
-            WHERE quantity > 0
-            AND id_variant NOT IN (
+            SELECT pv.id_variant, p.name_product, sz.size_value, c.color_name 
+            FROM product_variant pv 
+            JOIN product p ON pv.id_product = p.id_product
+            JOIN size sz ON pv.id_size = sz.id_size
+            JOIN color c ON pv.id_color = c.id_color
+            WHERE pv.quantity > 0
+            AND pv.id_variant NOT IN (
                 SELECT id_variant FROM invoicedetail WHERE id_invoice = :id_invoice
             )
         ");
@@ -135,5 +138,19 @@ class InvoiceDetailModel {
         $stmt->bindParam(':total', $total);
         $stmt->bindParam(':id_invoice', $invoiceId);
         return $stmt->execute();
+    }
+
+    public function getVariantInfo($variantId) {
+        $stmt = $this->conn->prepare("
+            SELECT p.name_product, sz.size_value, c.color_name 
+            FROM product_variant pv 
+            JOIN product p ON pv.id_product = p.id_product
+            JOIN size sz ON pv.id_size = sz.id_size
+            JOIN color c ON pv.id_color = c.id_color
+            WHERE pv.id_variant = :id_variant
+        ");
+        $stmt->bindParam(':id_variant', $variantId);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }

@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($id_user && $CustomerName && $CustomerPhone && $Status) {
         $invoiceModel = new InvoiceModel();
-        $result = $invoiceModel->addInvoice($id_user, $CustomerName, $CustomerPhone, $InvoiceDate, 0, $Status, $CustomerAddress);
+        $result = $invoiceModel->addInvoice($id_user, $CustomerName, $CustomerPhone, $InvoiceDate, $Status, $CustomerAddress);
         if ($result) {
             $_SESSION['success_message'] = 'Thêm hóa đơn thành công!';
             header('Location: invoice.php');

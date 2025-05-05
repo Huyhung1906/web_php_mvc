@@ -179,7 +179,6 @@
                                     <?php if ($invoice['Status'] === 'Đang xử lý'): ?>
                                         <a href="invoice_detail.php?id=<?php echo $invoice['id_invoice']; ?>"><i class="fas fa-edit"></i></a>
                                     <?php endif; ?>
-                                    
                                     <?php if ($invoice['Status'] === 'Hoàn thành'): ?>
                                         <a href="invoice.php?delete=<?php echo $invoice['id_invoice']; ?>" class="delete" onclick="return confirm('Xóa Hóa đơn này?');"><i class="fas fa-trash"></i></a>
                                     <?php endif; ?>

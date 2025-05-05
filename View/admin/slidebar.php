@@ -4,6 +4,7 @@
     <a href="products.php" class="<?php echo ($activePage == 'products') ? 'active' : ''; ?>"><i class="fas fa-shoe-prints"></i></a>
     <a href="product_variants.php" class="<?php echo ($activePage == 'variants') ? 'active' : ''; ?>"><i class="fas fa-cubes"></i></a>
     <a href="promotions.php" class="<?php echo ($activePage == 'promotions') ? 'active' : ''; ?>" title="Quản lý khuyến mãi"><i class="fas fa-gift"></i></a>
+
     <a href="invoices.php" class="<?php echo ($activePage == 'invoices') ? 'active' : ''; ?>"><i class="fas fa-file-invoice"></i></a>
     <a href="../logout.php"><i class="fas fa-sign-out-alt"></i></a>
 </div>
