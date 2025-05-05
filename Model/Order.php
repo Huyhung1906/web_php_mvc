@@ -4,7 +4,7 @@ require_once __DIR__ . '/../config/config.php';
 class Order
 {
     // Tạo hóa đơn mới
-    public function createOrder($userId, $address, $paymentMethod, $cartItems, $total)
+    public function createOrder($userId, $address, $paymentMethod, $cartItems, $total, $customerName, $customerPhone)
     {
         global $conn;
         try {
@@ -16,8 +16,8 @@ class Order
             error_log("Cart items count: " . count($cartItems));
 
             // Lưu hóa đơn
-            $stmt = $conn->prepare("INSERT INTO invoice (id_user, CustomerAddress, Status, TotalAmount, InvoiceDate) VALUES (?, ?, ?, ?, NOW())");
-            $stmt->execute([$userId, $address, 'Đang xử lý', $total]);
+            $stmt = $conn->prepare("INSERT INTO invoice (id_user, CustomerName, CustomerPhone, CustomerAddress, Status, TotalAmount, InvoiceDate) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+            $stmt->execute([$userId, $customerName, $customerPhone, $address, 'Đang xử lý', $total]);
             $invoiceId = $conn->lastInsertId();
             
             error_log("Created invoice with ID: $invoiceId");

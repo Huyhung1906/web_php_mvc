@@ -375,6 +375,8 @@ class CartController {
         $address = $_POST['address'] ?? '';
         $address_new = trim($_POST['address_new'] ?? '');
         $paymentMethod = $_POST['payment_method'] ?? '';
+        $customerName = $_POST['customer_name'] ?? '';
+        $customerPhone = $_POST['customer_phone'] ?? '';
         $total = 0;
         foreach ($cartItems as $item) {
             $total += $item['total_price'];
@@ -389,7 +391,7 @@ class CartController {
         }
 
         $orderModel = new Order();
-        $orderId = $orderModel->createOrder($userId, $finalAddress, $paymentMethod, $cartItems, $total);
+        $orderId = $orderModel->createOrder($userId, $finalAddress, $paymentMethod, $cartItems, $total, $customerName, $customerPhone);
 
         if ($orderId) {
             $this->cartModel->clearCart($userId);
@@ -401,10 +403,6 @@ class CartController {
             header("Location: /web_php_mvc/View/user/payment.php");
             exit;
         }
-    }
-
-    public function createOrder($userId, $address, $paymentMethod, $cartItems, $total) {
-        // ... như hướng dẫn các bước trước ...
     }
 
     /**

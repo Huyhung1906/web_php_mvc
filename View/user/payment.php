@@ -182,6 +182,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'placeOrder') {
                                 <?php endif; ?>
                                 <p><strong>Recipient Name:</strong> <?php echo htmlspecialchars($user['fullname']); ?></p>
                                 <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($user['phone']); ?></p>
+                                <input type="hidden" name="customer_name" value="<?php echo htmlspecialchars($user['fullname']); ?>">
+                                <input type="hidden" name="customer_phone" value="<?php echo htmlspecialchars($user['phone']); ?>">
                             </div>
                             <div class="form-section">
                                 <h4>Payment Method</h4>
