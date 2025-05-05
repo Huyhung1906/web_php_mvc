@@ -262,7 +262,7 @@ if (!isset($cartItems)) {
 									</div>
                                     <?php if (isset($cartItems) && !empty($cartItems)): ?>
                                         <div class="mt-3">
-                                            <a href="/web_php_mvc/View/user/checkout.php" class="btn btn-primary btn-block" style="font-size: 16px; padding: 12px;">Tiến hành thanh toán</a>
+                                            <a href="/web_php_mvc/View/user/payment.php" class="btn btn-primary btn-block" style="font-size: 16px; padding: 12px;">Tiến hành thanh toán</a>
                                         </div>
                                     <?php endif; ?>
 								</div>

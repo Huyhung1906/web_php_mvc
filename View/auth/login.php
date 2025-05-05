@@ -1,12 +1,13 @@
 <?php
-    require_once('../../Controller/authcontroller/LoginController.php');
+require_once('../../Controller/authcontroller/LoginController.php');
 
-    $loginController = new LoginController();
-    $loginController->login();
+$loginController = new LoginController();
+$loginController->login();
 ?>
 
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -110,6 +111,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <h3 class="text-center">Đăng nhập</h3>
@@ -118,6 +120,12 @@
             <div class="alert alert-danger text-center">
                 <?php echo $_SESSION['error_msg']; ?>
                 <?php unset($_SESSION['error_msg']); ?> <!-- Xóa thông báo lỗi sau khi hiển thị -->
+            </div>
+        <?php endif; ?>
+        <?php if (isset($_SESSION['success_msg'])): ?>
+            <div class="alert alert-success text-center">
+                <?php echo $_SESSION['success_msg']; ?>
+                <?php unset($_SESSION['success_msg']); ?>
             </div>
         <?php endif; ?>
 
@@ -149,4 +157,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
