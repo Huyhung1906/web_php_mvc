@@ -16,17 +16,64 @@ $activePage = 'variants';
     <!-- Sidebar CSS -->
     <link rel="stylesheet" href="/web_php_mvc/View/admin/slidebar.css">
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
-        body { background-color:#f4f4f9; }
-        .container { display:flex; min-height:100vh; }
-        .main-content { flex-grow:1; padding:20px; }
-        .action-buttons .btn { margin:0 2px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 50px; /* Đặt chiều rộng cho sidebar */
+            background-color: #1a1f37; /* Màu nền */
+            color: white; /* Màu chữ */
+            padding: 20px 0; /* Padding cho sidebar */
+            position: fixed; /* Giữ sidebar cố định */
+            top: 0;
+            left: 0;
+            height: 100%; /* Chiều cao đầy đủ */
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Đổ bóng tùy chọn */
+        }
+
+        .sidebar a {
+            color: #a3a6b4; /* Màu chữ cho liên kết */
+            display: block; /* Hiển thị liên kết dưới dạng khối */
+            padding: 15px; /* Padding cho liên kết */
+            text-decoration: none; /* Bỏ gạch chân */
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            color: white; /* Màu chữ khi hover hoặc active */
+            background-color: #2c3149; /* Màu nền khi hover/active */
+        }
+
+        .main-content {
+            margin-left: auto; /* Điều chỉnh margin để phù hợp với chiều rộng của sidebar */
+            flex-grow: 1; /* Cho phép main-content mở rộng */
+            padding: 20px; /* Padding cho main-content */
+        }
+
+        .action-buttons .btn {
+            margin: 0 2px;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <?php include(__DIR__ . '/slidebar.php'); ?>
+        <div class="sidebar">
+            <?php include(__DIR__ . '/slidebar.php'); ?>
+        </div>
+
         <div class="main-content">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Quản lý biến thể sản phẩm</h2>
