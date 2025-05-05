@@ -151,7 +151,7 @@ $id_invoice = $_GET['id'] ?? '';
         <thead>
             <tr>
                 <th>ID Invoice</th>
-                <th>ID Variant</th>
+                <th>Sản phẩm</th>
                 <th>Số lượng</th>
                 <th>Thành tiền</th>
                 <th>Thao tác</th>
@@ -162,11 +162,20 @@ $id_invoice = $_GET['id'] ?? '';
                 <?php foreach ($details as $row): ?>
                     <tr>
                         <td><?php echo $row['id_invoice']; ?></td>
-                        <td><?php echo $row['id_variant']; ?></td>
+                        <td>
+                            <?php 
+                            $variantInfo = $detailModel->getVariantInfo($row['id_variant']);
+                            if ($variantInfo) {
+                                echo $variantInfo['name_product'] . ' - Size: ' . $variantInfo['size_value'] . ' - Màu: ' . $variantInfo['color_name'];
+                            } else {
+                                echo $row['id_variant'];
+                            }
+                            ?>
+                        </td>
                         <td><?php echo $row['quantity']; ?></td>
-                        <td><?php echo $row['sub_total']; ?></td>
+                        <td><?php echo number_format($row['sub_total'], 0, ',', '.') . ' VNĐ'; ?></td>
                         <td class="actions">
-                            <a href="invoice_detail.php?id=<?php echo $id_invoice; ?>&delete_detail=<?php echo $row['id_variant']; ?>" class="delete" onclick="return confirm('Xóa dòng này?');">Xóa</a>
+                            <a href="invoice_detail.php?id=<?php echo $id_invoice; ?>&delete_detail=<?php echo $row['id_variant']; ?>" class="delete" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">Xóa</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -183,7 +192,7 @@ $id_invoice = $_GET['id'] ?? '';
                 <option value="">-- Chọn variant --</option>
                 <?php foreach ($variants as $variant): ?>
                     <option value="<?php echo $variant['id_variant']; ?>">
-                        <?php echo $variant['id_variant'] ; ?>
+                        <?php echo $variant['name_product'] . ' - Size: ' . $variant['size_value'] . ' - Màu: ' . $variant['color_name']; ?>
                     </option>
                 <?php endforeach; ?>
             </select>

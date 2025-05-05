@@ -44,7 +44,7 @@ class InvoiceModel {
 	// Thêm hóa đơn
 	public function addInvoice($id_user, $CustomerName, $CustomerPhone, $InvoiceDate, $Status, $CustomerAddress) {
 		try {
-			$stmt = $this->conn->prepare("INSERT INTO invoice (id_user, CustomerName, CustomerPhone, InvoiceDate, TotalAmount, Status, CustomerAddress) VALUES (:id_user, :CustomerName, :CustomerPhone, :InvoiceDate, 0, :Status, :CustomerAddress)");
+			$stmt = $this->conn->prepare("INSERT INTO invoice (id_user, CustomerName, CustomerPhone, InvoiceDate, Status, CustomerAddress) VALUES (:id_user, :CustomerName, :CustomerPhone, :InvoiceDate, :Status, :CustomerAddress)");
 			$stmt->bindParam(':id_user', $id_user);
 			$stmt->bindParam(':CustomerName', $CustomerName);
 			$stmt->bindParam(':CustomerPhone', $CustomerPhone);
