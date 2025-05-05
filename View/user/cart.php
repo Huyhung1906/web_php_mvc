@@ -266,7 +266,7 @@ if (!isset($cartItems)) {
                                             <a href="/web_php_mvc/View/user/payment.php" class="btn btn-primary btn-block" style="font-size: 16px; padding: 12px;">Tiến hành thanh toán</a>
                                         </div>
                                         <div class="mt-2">
-                                            <button id="remove-recent-order" class="btn btn-secondary btn-block" style="font-size: 16px; padding: 12px;">Huỷ đơn hàng gần nhất</button>
+                                            <!-- <button id="remove-recent-order" class="btn btn-secondary btn-block" style="font-size: 16px; padding: 12px;">Huỷ đơn hàng gần nhất</button> -->
                                         </div>
                                     <?php endif; ?>
 								</div>
