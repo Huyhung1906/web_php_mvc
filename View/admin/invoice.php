@@ -31,7 +31,7 @@ require_once('../../Controller/admincontroller/invoiceController.php');
             min-height: 100vh;
         }
 
-        
+    
 
         /* Main Content */
         .main-content {

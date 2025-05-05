@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';      // XAMPP chạy MySQL trên localhost
-$dbname = 'shose_web';  // Tên database bạn vừa tạo
+$dbname = 'shoes_web';  // Tên database bạn vừa tạo
 $username = 'root';       // Tên tài khoản mặc định
 $password = '';           // Mật khẩu trống trong XAMPP
 
