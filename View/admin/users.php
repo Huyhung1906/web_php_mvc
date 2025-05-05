@@ -28,27 +28,6 @@ require_once('../../Controller/admincontroller/usercontroller.php');
             min-height: 100vh;
         }
 
-        .sidebar {
-            width: 60px;
-            background-color: #1a1f37;
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-        }
-
-        .sidebar a {
-            color: #a3a6b4;
-            display: block;
-            padding: 15px 0;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar a:hover,
-        .sidebar a.active {
-            color: white;
-            background-color: #2c3149;
-        }
 
         .main-content {
             flex-grow: 1;
@@ -87,7 +66,6 @@ require_once('../../Controller/admincontroller/usercontroller.php');
         .search-bar button:hover {
             background-color: #2c3149;
         }
-
         .header a {
             background-color: #1a1f37;
             color: white;
@@ -115,7 +93,7 @@ require_once('../../Controller/admincontroller/usercontroller.php');
         .table td {
             padding: 14px 12px;
             border-bottom: 1px solid #eee;
-            text-align: center;
+            text-align: left;
         }
 
         .table thead {
@@ -188,6 +166,7 @@ require_once('../../Controller/admincontroller/usercontroller.php');
                     <tr>
                         <th>ID</th>
                         <th>Username</th>
+                        <th>Họ và Tên</th>
                         <th>Email</th>
                         <th>Số điện thoại</th>
                         <th>Vai trò</th>
@@ -199,6 +178,7 @@ require_once('../../Controller/admincontroller/usercontroller.php');
                         <tr>
                             <td><?php echo $user['id_user']; ?></td>
                             <td><?php echo htmlspecialchars($user['username']); ?></td>
+                            <td><?php echo htmlspecialchars($user['fullname']); ?></td>
                             <td><?php echo htmlspecialchars($user['email']); ?></td>
                             <td><?php echo htmlspecialchars($user['phone']); ?></td>
                             <td><?php echo htmlspecialchars($user['name_role']); ?></td>

@@ -11,12 +11,9 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f4f4f9; }
         .container { display: flex; min-height: 100vh; }
-        .sidebar { width: 80px; background-color: #1a1f37; color: white; padding: 20px 0; text-align: center; }
-        .sidebar a { color: #a3a6b4; display: block; padding: 15px; text-decoration: none; }
-        .sidebar a:hover, .sidebar a.active { color: white; background-color: #2c3149; }
         .main-content { flex-grow: 1; padding: 20px; }
         .header { display: flex; justify-content: space-between; align-items: center; background-color: white; padding: 10px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px; }
