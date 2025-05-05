@@ -12,7 +12,7 @@ class Order
 
             // Lưu hóa đơn
             $stmt = $conn->prepare("INSERT INTO invoice (id_user, CustomerAddress, Status, TotalAmount, InvoiceDate) VALUES (?, ?, ?, ?, NOW())");
-            $stmt->execute([$userId, $address, $paymentMethod, $total]);
+            $stmt->execute([$userId, $address, 'Đang xử lý', $total]);
             $invoiceId = $conn->lastInsertId();
 
             // Lưu từng sản phẩm trong chi tiết hóa đơn

@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../Model/user.php';
 require_once __DIR__ . '/../../Model/Order.php';
+require_once __DIR__ . '/../../Model/Invoice.php';
+require_once __DIR__ . '/../../Model/InvoiceDetail.php';
 
 // Initialize session if not already started
 if (session_status() == PHP_SESSION_NONE) {
@@ -21,10 +23,29 @@ $username = $_SESSION['username'];
 // Get user addresses
 $userModel = new UserModel();
 $userAddresses = $userModel->getUserAddresses($userId);
+$user = $userModel->getUserById2($userId);
 
-// Get user orders
-$orderModel = new Order();
-$userOrders = $orderModel->getOrdersByUser($userId);
+// Lấy danh sách hóa đơn của user
+$invoiceModel = new InvoiceModel();
+$invoiceDetailModel = new InvoiceDetailModel();
+$userInvoices = $invoiceModel->getInvoices();
+// Lọc hóa đơn theo user hiện tại
+$userInvoices = array_filter($userInvoices, function($inv) use ($userId) { return $inv['id_user'] == $userId; });
+
+// Cập nhật trạng thái bảo hành trong DB
+$now = date('Y-m-d');
+$stmt = $conn->prepare("UPDATE warranty SET warranty_status = 
+    CASE 
+        WHEN warranty_end_date >= ? THEN 'Active'
+        ELSE 'Expired'
+    END
+    WHERE warranty_status != 
+    CASE 
+        WHEN warranty_end_date >= ? THEN 'Active'
+        ELSE 'Expired'
+    END
+");
+$stmt->execute([$now, $now]);
 ?>
 <html>
 
@@ -90,11 +111,17 @@ $userOrders = $orderModel->getOrdersByUser($userId);
 							<p><strong>Account ID:</strong> <?php echo htmlspecialchars($userId); ?></p>
 							<p><strong>Account Type:</strong> <?php echo ($_SESSION['id_role'] == 1) ? 'Administrator' : 'User'; ?></p>
 						</div>
+						<!-- Warranty Service box -->
+						<div class="profile-card" style="margin-top: 20px;">
+							<h3>Warranty Service</h3>
+							<p>Check and manage your product warranty requests easily.</p>
+							<a href="warranty.php" class="btn btn-primary">Go to Warranty</a>
+						</div>
 					</div>
 					<div class="col-md-8">
 						<div class="profile-card">
 							<h3>Recent Orders</h3>
-							<?php if (empty($userOrders)): ?>
+							<?php if (empty($userInvoices)): ?>
 								<p>You have not placed any orders yet.</p>
 								<a href="index.php" class="btn btn-primary">Shop now</a>
 							<?php else: ?>
@@ -102,36 +129,28 @@ $userOrders = $orderModel->getOrdersByUser($userId);
 									<table class="table table-bordered">
 										<thead>
 											<tr>
-												<th>Order ID</th>
+												<th>No.</th>
 												<th>Date</th>
+												<th>Customer Name</th>
+												<th>Phone</th>
 												<th>Shipping Address</th>
-												<th>Payment Method</th>
+												<th>Status</th>
 												<th>Total</th>
 												<th>Details</th>
 											</tr>
 										</thead>
 										<tbody>
-											<?php foreach ($userOrders as $order): ?>
+											<?php $stt = 1; foreach ($userInvoices as $invoice): ?>
 												<tr>
-													<td><?php echo $order['id']; ?></td>
-													<td><?php echo $order['created_at']; ?></td>
-													<td><?php echo htmlspecialchars($order['address']); ?></td>
-													<td><?php echo htmlspecialchars($order['payment_method']); ?></td>
-													<td><?php echo number_format($order['total'], 0, ',', '.'); ?> đ</td>
+													<td><?php echo $stt++; ?></td>
+													<td><?php echo htmlspecialchars($invoice['InvoiceDate']); ?></td>
+													<td><?php echo htmlspecialchars($user['fullname']); ?></td>
+													<td><?php echo htmlspecialchars($user['phone']); ?></td>
+													<td><?php echo htmlspecialchars($invoice['CustomerAddress']); ?></td>
+													<td><?php echo htmlspecialchars($invoice['Status']); ?></td>
+													<td><?php echo number_format($invoice['TotalAmount'] ?? 0, 0, ',', '.'); ?> đ</td>
 													<td>
-														<ul style="padding-left: 18px; margin-bottom: 0;">
-															<?php foreach ($order['items'] as $item): ?>
-																<li>
-																	<?php echo htmlspecialchars($item['product_name']); ?>
-																	(Qty: <?php echo $item['quantity']; ?>, Price: <?php echo number_format($item['price'], 0, ',', '.'); ?> đ)
-																	<button class="btn btn-sm btn-info warranty-btn"
-																		data-order-item-id="<?php echo $item['id']; ?>"
-																		data-product-name="<?php echo htmlspecialchars($item['product_name']); ?>">
-																		Warranty
-																	</button>
-																</li>
-															<?php endforeach; ?>
-														</ul>
+														<button type="button" class="btn btn-sm btn-info order-detail-btn" data-id="<?php echo $invoice['id_invoice']; ?>">Detail</button>
 													</td>
 												</tr>
 											<?php endforeach; ?>
@@ -268,6 +287,13 @@ $userOrders = $orderModel->getOrdersByUser($userId);
 	<script src="/web_php_mvc/public/js/bootstrap.min.js"></script>
 	<script src="/web_php_mvc/public/js/jquery.easing.1.3.js"></script>
 	<script src="/web_php_mvc/public/js/jquery.flexslider-min.js"></script>
+	<script>
+	if (typeof jQuery.fn.andSelf === 'undefined') {
+		jQuery.fn.andSelf = function() {
+			return this.addBack.apply(this, arguments);
+		}
+	}
+	</script>
 	<script src="/web_php_mvc/public/js/owl.carousel.min.js"></script>
 	<script src="/web_php_mvc/public/js/jquery.magnific-popup.min.js"></script>
 	<script src="/web_php_mvc/public/js/magnific-popup-options.js"></script>
@@ -312,6 +338,37 @@ $userOrders = $orderModel->getOrdersByUser($userId);
 				});
 			});
 		});
+	</script>
+
+	<!-- Modal for Order Detail -->
+	<div class="modal fade" id="orderDetailModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="orderDetailModalLabel">Order Details</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body" id="orderDetailModalBody">
+					<!-- Order details will be loaded here -->
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+	$(document).ready(function() {
+		// Gán lại sự kiện click mỗi khi trang load xong
+		$(document).on('click', '.order-detail-btn', function() {
+			var invoiceId = $(this).data('id');
+			$('#orderDetailModalBody').html('Loading...');
+			$('#orderDetailModal').modal('show');
+			$.get('order_detail_ajax.php', {id: invoiceId}, function(data) {
+				$('#orderDetailModalBody').html(data);
+			});
+		});
+	});
 	</script>
 
 </body>

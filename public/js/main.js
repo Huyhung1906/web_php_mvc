@@ -300,5 +300,21 @@
 		datePicker();
 	});
 
+	$(function() {
+		$('.order-detail-btn').on('click', function() {
+			var invoiceId = $(this).data('id');
+			$('#orderDetailModalBody').html('Loading...');
+			$('#orderDetailModal').modal('show');
+			$.get('order_detail_ajax.php', {id: invoiceId}, function(data) {
+				$('#orderDetailModalBody').html(data);
+			});
+		});
+	});
+
+	if (typeof jQuery.fn.andSelf === 'undefined') {
+		jQuery.fn.andSelf = function() {
+			return this.addBack.apply(this, arguments);
+		}
+	}
 
 }());
