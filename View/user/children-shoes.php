@@ -12,6 +12,8 @@ $filterController = new ProductFilterController();
 $result = $filterController->getFilteredChildrenShoes();
 $childrenShoes = $result['products'];
 $sizes = $result['sizes'];
+$pagination = $result['pagination'];
+$paginationHtml = $result['paginationHtml'];
 
 // Check if user is logged in
 $isLoggedIn = isset($_SESSION['id_user']) && !empty($_SESSION['id_user']);
@@ -48,6 +50,34 @@ $username = $isLoggedIn ? $_SESSION['username'] : '';
 	<link rel="stylesheet" href="/web_php_mvc/public/css/bootstrap-datepicker.css">
 	<!-- Theme style  -->
 	<link rel="stylesheet" href="/web_php_mvc/public/css/style.css">
+	<!-- Custom styles for filters -->
+	<link rel="stylesheet" href="/web_php_mvc/public/css/custom.css">
+	<style>
+		.block-27 ul li {
+			display: inline-block;
+			margin-bottom: 4px;
+			font-weight: 400;
+		}
+		.block-27 ul li a, .block-27 ul li span {
+			color: #555;
+			text-align: center;
+			display: inline-block;
+			width: 40px;
+			height: 40px;
+			line-height: 40px;
+			border-radius: 50%;
+			border: 1px solid #e6e6e6;
+		}
+		.block-27 ul li.active a, .block-27 ul li.active span {
+			background: #88c8bc;
+			color: #fff;
+			border: 1px solid transparent;
+		}
+		.block-27 ul li.disabled span {
+			color: #ccc;
+			cursor: not-allowed;
+		}
+	</style>
 	</head>
 	<body>
 		
@@ -63,26 +93,31 @@ $username = $isLoggedIn ? $_SESSION['username'] : '';
 					<?php include 'filter.php'; ?>
 
 					<div class="col-lg-9 col-xl-9">
+						<div class="row">
+							<div class="col-md-12">
+								<p>Hiển thị <?php echo $pagination['from']; ?>-<?php echo $pagination['to']; ?> của <?php echo $pagination['total']; ?> sản phẩm</p>
+							</div>
+						</div>
 						<div class="row row-pb-md">
 							<?php if (isset($childrenShoes) && is_array($childrenShoes) && !empty($childrenShoes)): ?>
-								<?php foreach ($childrenShoes as $childrenShoe): ?>
+								<?php foreach ($childrenShoes as $shoe): ?>
 									<div class="col-lg-4 mb-4 text-center">
 										<div class="product-entry border">
-											<a href="/web_php_mvc/index.php?url=product-detail/<?php echo htmlspecialchars($childrenShoe['id_product']); ?>" class="prod-img">
-												<?php if (isset($childrenShoe['imageUrl']) && !empty($childrenShoe['imageUrl'])): ?>
-													<img src="/web_php_mvc/public/images/<?php echo htmlspecialchars($childrenShoe['imageUrl']); ?>" 
-														class="img-fluid" alt="<?php echo htmlspecialchars($childrenShoe['name_product']); ?>">
+											<a href="/web_php_mvc/index.php?url=product-detail/<?php echo htmlspecialchars($shoe['id_product']); ?>" class="prod-img">
+												<?php if (isset($shoe['imageUrl']) && !empty($shoe['imageUrl'])): ?>
+													<img src="/web_php_mvc/public/images/<?php echo htmlspecialchars($shoe['imageUrl']); ?>" 
+														class="img-fluid" alt="<?php echo htmlspecialchars($shoe['name_product']); ?>">
 												<?php else: ?>
 													<img src="/web_php_mvc/public/images/item-1.jpg" class="img-fluid" alt="Default Image">
 												<?php endif; ?>
 											</a>
 											<div class="desc">
-												<h2><a href="/web_php_mvc/index.php?url=product-detail/<?php echo htmlspecialchars($childrenShoe['id_product']); ?>">
-													<?php echo htmlspecialchars($childrenShoe['name_product']); ?>
+												<h2><a href="/web_php_mvc/index.php?url=product-detail/<?php echo htmlspecialchars($shoe['id_product']); ?>">
+													<?php echo htmlspecialchars($shoe['name_product']); ?>
 												</a></h2>
-												<span class="price"><?php echo number_format($childrenShoe['price'], 0, ',', '.'); ?>đ</span>
-												<?php if (isset($childrenShoe['original_price']) && $childrenShoe['original_price'] > $childrenShoe['price']): ?>
-													<span class="original-price"><del><?php echo number_format($childrenShoe['original_price'], 0, ',', '.'); ?>đ</del></span>
+												<span class="price"><?php echo number_format($shoe['price'], 0, ',', '.'); ?>đ</span>
+												<?php if (isset($shoe['original_price']) && $shoe['original_price'] > $shoe['price']): ?>
+													<span class="original-price"><del><?php echo number_format($shoe['original_price'], 0, ',', '.'); ?>đ</del></span>
 												<?php endif; ?>
 											</div>
 										</div>
@@ -96,21 +131,7 @@ $username = $isLoggedIn ? $_SESSION['username'] : '';
 						</div>
 						
 						<!-- Pagination -->
-						<div class="row">
-							<div class="col-md-12 text-center">
-								<div class="block-27">
-									<ul>
-										<li><a href="#">&lt;</a></li>
-										<li class="active"><span>1</span></li>
-										<li><a href="#">2</a></li>
-										<li><a href="#">3</a></li>
-										<li><a href="#">4</a></li>
-										<li><a href="#">5</a></li>
-										<li><a href="#">&gt;</a></li>
-									</ul>
-								</div>
-							</div>
-						</div>
+						<?php echo $paginationHtml; ?>
 					</div>
 				</div>
 			</div>

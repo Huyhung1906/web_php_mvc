@@ -40,6 +40,16 @@ class ProductFilter {
             }
         }
         
+        // Custom price range filter
+        if (isset($_GET['price_min']) && isset($_GET['price_max'])) {
+            if (!empty($_GET['price_min'])) {
+                $filters['price_min'] = (float)$_GET['price_min'];
+            }
+            if (!empty($_GET['price_max'])) {
+                $filters['price_max'] = (float)$_GET['price_max'];
+            }
+        }
+        
         // Sort filter
         if (isset($_GET['sort'])) {
             $filters['sort'] = $_GET['sort'];
@@ -54,17 +64,8 @@ class ProductFilter {
      * @return array Array of available sizes
      */
     public function getAvailableSizes() {
-        try {
-            $query = "SELECT DISTINCT size_value FROM size ORDER BY size_value ASC";
-            $stmt = $this->db->prepare($query);
-            $stmt->execute();
-            $sizes = $stmt->fetchAll(PDO::FETCH_COLUMN);
-            
-            return $sizes ?: ['36', '37', '38', '39', '40', '41', '42', '43'];
-        } catch(PDOException $e) {
-            error_log("Database Error in getAvailableSizes: " . $e->getMessage());
-            return ['36', '37', '38', '39', '40', '41', '42', '43'];
-        }
+        // Return default sizes without checking database
+        return ['36', '37', '38', '39', '40', '41', '42', '43'];
     }
     
     /**

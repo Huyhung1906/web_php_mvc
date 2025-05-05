@@ -196,7 +196,7 @@ if (!isset($cartItems)) {
                                 </div>
                                 <div class="one-eight text-center">
                                     <div class="display-tc">
-                                        <input type="number" name="quantity" class="form-control input-number text-center item-quantity" value="<?php echo $item['quantity']; ?>" min="1" max="100" style="font-size: 16px; padding: 6px 4px;">
+                                        <input type="number" name="quantity" class="form-control input-number text-center item-quantity" value="<?php echo $item['quantity']; ?>" min="1" max="10000" style="font-size: 16px; padding: 6px 4px;">
                                     </div>
                                 </div>
                                 <div class="one-eight text-center">
@@ -262,7 +262,7 @@ if (!isset($cartItems)) {
 									</div>
                                     <?php if (isset($cartItems) && !empty($cartItems)): ?>
                                         <div class="mt-3">
-                                            <a href="/web_php_mvc/checkout" class="btn btn-primary btn-block" style="font-size: 16px; padding: 12px;">Proceed to Checkout</a>
+                                            <a href="/web_php_mvc/View/user/checkout.php" class="btn btn-primary btn-block" style="font-size: 16px; padding: 12px;">Tiến hành thanh toán</a>
                                         </div>
                                     <?php endif; ?>
 								</div>
@@ -305,15 +305,21 @@ if (!isset($cartItems)) {
     
     <script>
         $(document).ready(function(){
+            const MAX_QUANTITY = 10000;
+            
             // Update quantity
             $('.item-quantity').on('change', function() {
                 var $item = $(this).closest('.cart-item');
                 var variantId = $item.data('variant-id');
                 var quantity = parseInt($(this).val());
                 
-                if (quantity < 1) {
+                if (isNaN(quantity) || quantity < 1) {
                     $(this).val(1);
                     quantity = 1;
+                } else if (quantity > MAX_QUANTITY) {
+                    alert('Maximum order quantity is 10,000 items');
+                    $(this).val(MAX_QUANTITY);
+                    quantity = MAX_QUANTITY;
                 }
                 
                 updateCartItem(variantId, quantity);

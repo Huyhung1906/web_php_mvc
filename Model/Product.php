@@ -1,6 +1,10 @@
 <?php
 class Product {
     private $db;
+    private $productsPerPage = 9; // Default products per page
+    private $sneakersPerPage = 6; // Specific count for sneakers
+    private $leatherPerPage = 9;  // Specific count for leather shoes
+    private $childrenPerPage = 9; // Specific count for children shoes
     
     public function __construct() {
         global $conn;
@@ -39,6 +43,40 @@ class Product {
 
     public function getSneakerShoes($filters = array()) {
         try {
+            // Mặc định là trang 1 nếu không xác định
+            $page = isset($filters['page']) ? (int)$filters['page'] : 1;
+            if ($page < 1) $page = 1;
+            
+            // Đếm tổng số sản phẩm để tính toán phân trang
+            $countQuery = "SELECT COUNT(*) as total FROM product p 
+                          INNER JOIN line l ON p.id_line = l.id_line 
+                          INNER JOIN category c ON c.id_category = l.id_category 
+                          WHERE c.id_category = 1";
+            $countParams = array();
+            
+            if (!empty($filters['size'])) {
+                $countQuery .= " AND size = :size";
+                $countParams[':size'] = $filters['size'];
+            }
+            
+            if (!empty($filters['price_min'])) {
+                $countQuery .= " AND price >= :price_min";
+                $countParams[':price_min'] = $filters['price_min'];
+            }
+            if (!empty($filters['price_max'])) {
+                $countQuery .= " AND price <= :price_max";
+                $countParams[':price_max'] = $filters['price_max'];
+            }
+            
+            $countStmt = $this->db->prepare($countQuery);
+            $countStmt->execute($countParams);
+            $totalCount = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Tính toán thông tin phân trang - sử dụng sneakersPerPage thay vì productsPerPage
+            $totalPages = ceil($totalCount / $this->sneakersPerPage);
+            $offset = ($page - 1) * $this->sneakersPerPage;
+            
+            // Truy vấn dữ liệu với phân trang
             $query = "SELECT * FROM product p 
                     INNER JOIN line l ON p.id_line = l.id_line 
                     INNER JOIN category c ON c.id_category = l.id_category 
@@ -80,19 +118,89 @@ class Product {
                 $query .= " ORDER BY id_product DESC";
             }
             
+            // Thêm LIMIT và OFFSET cho phân trang - sử dụng sneakersPerPage
+            $query .= " LIMIT :limit OFFSET :offset";
+            $params[':limit'] = $this->sneakersPerPage;
+            $params[':offset'] = $offset;
+            
             $stmt = $this->db->prepare($query);
-            $stmt->execute($params);
+            
+            // Bind các tham số
+            foreach ($params as $key => $value) {
+                if ($key == ':limit' || $key == ':offset') {
+                    $stmt->bindValue($key, $value, PDO::PARAM_INT);
+                } else {
+                    $stmt->bindValue($key, $value);
+                }
+            }
+            
+            $stmt->execute();
             $sneakers = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            return $sneakers;
+            // Trả về kết quả với thông tin phân trang
+            return [
+                'products' => $sneakers,
+                'pagination' => [
+                    'total' => $totalCount,
+                    'per_page' => $this->sneakersPerPage,
+                    'current_page' => $page,
+                    'last_page' => $totalPages,
+                    'from' => $offset + 1,
+                    'to' => min($offset + $this->sneakersPerPage, $totalCount)
+                ]
+            ];
         } catch(PDOException $e) {
             error_log("Database Error in getSneakers: " . $e->getMessage());
-            return array();
+            return [
+                'products' => array(),
+                'pagination' => [
+                    'total' => 0,
+                    'per_page' => $this->sneakersPerPage,
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'from' => 0,
+                    'to' => 0
+                ]
+            ];
         }
     }
 
     public function getLeatherShoes($filters = array()) {
         try {
+            // Mặc định là trang 1 nếu không xác định
+            $page = isset($filters['page']) ? (int)$filters['page'] : 1;
+            if ($page < 1) $page = 1;
+            
+            // Đếm tổng số sản phẩm để tính toán phân trang
+            $countQuery = "SELECT COUNT(*) as total FROM product p 
+                          INNER JOIN line l ON p.id_line = l.id_line 
+                          INNER JOIN category c ON c.id_category = l.id_category 
+                          WHERE c.id_category = 2";
+            $countParams = array();
+            
+            if (!empty($filters['size'])) {
+                $countQuery .= " AND size = :size";
+                $countParams[':size'] = $filters['size'];
+            }
+            
+            if (!empty($filters['price_min'])) {
+                $countQuery .= " AND price >= :price_min";
+                $countParams[':price_min'] = $filters['price_min'];
+            }
+            if (!empty($filters['price_max'])) {
+                $countQuery .= " AND price <= :price_max";
+                $countParams[':price_max'] = $filters['price_max'];
+            }
+            
+            $countStmt = $this->db->prepare($countQuery);
+            $countStmt->execute($countParams);
+            $totalCount = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Tính toán thông tin phân trang - sử dụng leatherPerPage
+            $totalPages = ceil($totalCount / $this->leatherPerPage);
+            $offset = ($page - 1) * $this->leatherPerPage;
+            
+            // Truy vấn dữ liệu với phân trang
             $query = "SELECT * FROM product p 
                     INNER JOIN line l ON p.id_line = l.id_line 
                     INNER JOIN category c ON c.id_category = l.id_category 
@@ -134,18 +242,89 @@ class Product {
                 $query .= " ORDER BY id_product DESC";
             }
             
+            // Thêm LIMIT và OFFSET cho phân trang
+            $query .= " LIMIT :limit OFFSET :offset";
+            $params[':limit'] = $this->leatherPerPage;
+            $params[':offset'] = $offset;
+            
             $stmt = $this->db->prepare($query);
-            $stmt->execute($params);
+            
+            // Bind các tham số
+            foreach ($params as $key => $value) {
+                if ($key == ':limit' || $key == ':offset') {
+                    $stmt->bindValue($key, $value, PDO::PARAM_INT);
+                } else {
+                    $stmt->bindValue($key, $value);
+                }
+            }
+            
+            $stmt->execute();
             $leatherShoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $leatherShoes;
+            
+            // Trả về kết quả với thông tin phân trang
+            return [
+                'products' => $leatherShoes,
+                'pagination' => [
+                    'total' => $totalCount,
+                    'per_page' => $this->leatherPerPage,
+                    'current_page' => $page,
+                    'last_page' => $totalPages,
+                    'from' => $offset + 1,
+                    'to' => min($offset + $this->leatherPerPage, $totalCount)
+                ]
+            ];
         } catch(PDOException $e) {
             error_log("Database Error in getLeatherShoes: " . $e->getMessage());
-            return array();
+            return [
+                'products' => array(),
+                'pagination' => [
+                    'total' => 0,
+                    'per_page' => $this->leatherPerPage,
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'from' => 0,
+                    'to' => 0
+                ]
+            ];
         }
     }
 
     public function getChildrenShoes($filters = array()) {
         try {
+            // Mặc định là trang 1 nếu không xác định
+            $page = isset($filters['page']) ? (int)$filters['page'] : 1;
+            if ($page < 1) $page = 1;
+            
+            // Đếm tổng số sản phẩm để tính toán phân trang
+            $countQuery = "SELECT COUNT(*) as total FROM product p 
+                          INNER JOIN line l ON p.id_line = l.id_line 
+                          INNER JOIN category c ON c.id_category = l.id_category 
+                          WHERE c.id_category = 3";
+            $countParams = array();
+            
+            if (!empty($filters['size'])) {
+                $countQuery .= " AND size = :size";
+                $countParams[':size'] = $filters['size'];
+            }
+            
+            if (!empty($filters['price_min'])) {
+                $countQuery .= " AND price >= :price_min";
+                $countParams[':price_min'] = $filters['price_min'];
+            }
+            if (!empty($filters['price_max'])) {
+                $countQuery .= " AND price <= :price_max";
+                $countParams[':price_max'] = $filters['price_max'];
+            }
+            
+            $countStmt = $this->db->prepare($countQuery);
+            $countStmt->execute($countParams);
+            $totalCount = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            
+            // Tính toán thông tin phân trang - sử dụng childrenPerPage
+            $totalPages = ceil($totalCount / $this->childrenPerPage);
+            $offset = ($page - 1) * $this->childrenPerPage;
+            
+            // Truy vấn dữ liệu với phân trang
             $query = "SELECT * FROM product p 
                     INNER JOIN line l ON p.id_line = l.id_line 
                     INNER JOIN category c ON c.id_category = l.id_category 
@@ -187,13 +366,50 @@ class Product {
                 $query .= " ORDER BY id_product DESC";
             }
             
+            // Thêm LIMIT và OFFSET cho phân trang
+            $query .= " LIMIT :limit OFFSET :offset";
+            $params[':limit'] = $this->childrenPerPage;
+            $params[':offset'] = $offset;
+            
             $stmt = $this->db->prepare($query);
-            $stmt->execute($params);
+            
+            // Bind các tham số
+            foreach ($params as $key => $value) {
+                if ($key == ':limit' || $key == ':offset') {
+                    $stmt->bindValue($key, $value, PDO::PARAM_INT);
+                } else {
+                    $stmt->bindValue($key, $value);
+                }
+            }
+            
+            $stmt->execute();
             $childrenShoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $childrenShoes;
+            
+            // Trả về kết quả với thông tin phân trang
+            return [
+                'products' => $childrenShoes,
+                'pagination' => [
+                    'total' => $totalCount,
+                    'per_page' => $this->childrenPerPage,
+                    'current_page' => $page,
+                    'last_page' => $totalPages,
+                    'from' => $offset + 1,
+                    'to' => min($offset + $this->childrenPerPage, $totalCount)
+                ]
+            ];
         } catch(PDOException $e) {
             error_log("Database Error in getChildrenShoes: " . $e->getMessage());
-            return array();
+            return [
+                'products' => array(),
+                'pagination' => [
+                    'total' => 0,
+                    'per_page' => $this->childrenPerPage,
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'from' => 0,
+                    'to' => 0
+                ]
+            ];
         }
     }
     
@@ -305,5 +521,82 @@ class Product {
         }
     }
 
+    /**
+     * Helper function to build pagination links
+     * 
+     * @param array $pagination Pagination data
+     * @param array $filters Current filters
+     * @return string HTML for pagination links
+     */
+    public function buildPaginationLinks($pagination, $filters) {
+        $currentPage = $pagination['current_page'];
+        $lastPage = $pagination['last_page'];
+        
+        // Get current URL path
+        $currentUrl = $_SERVER['PHP_SELF'];
+        
+        // Remove 'page' from filters for building page links
+        $queryFilters = $filters;
+        unset($queryFilters['page']);
+        
+        // Build query string from current filters
+        $queryString = http_build_query($queryFilters);
+        $queryPrefix = empty($queryString) ? '?' : "?{$queryString}&";
+        
+        $html = '<div class="row">';
+        $html .= '<div class="col-md-12 text-center">';
+        $html .= '<div class="block-27">';
+        $html .= '<ul>';
+        
+        // Previous page link
+        if ($currentPage > 1) {
+            $html .= '<li><a href="' . $currentUrl . $queryPrefix . 'page=' . ($currentPage - 1) . '">&lt;</a></li>';
+        } else {
+            $html .= '<li class="disabled"><span>&lt;</span></li>';
+        }
+        
+        // Page numbers
+        $startPage = max(1, $currentPage - 2);
+        $endPage = min($lastPage, $currentPage + 2);
+        
+        // Always show page 1
+        if ($startPage > 1) {
+            $html .= '<li><a href="' . $currentUrl . $queryPrefix . 'page=1">1</a></li>';
+            if ($startPage > 2) {
+                $html .= '<li class="disabled"><span>...</span></li>';
+            }
+        }
+        
+        // Page numbers
+        for ($i = $startPage; $i <= $endPage; $i++) {
+            if ($i == $currentPage) {
+                $html .= '<li class="active"><span>' . $i . '</span></li>';
+            } else {
+                $html .= '<li><a href="' . $currentUrl . $queryPrefix . 'page=' . $i . '">' . $i . '</a></li>';
+            }
+        }
+        
+        // Always show last page
+        if ($endPage < $lastPage) {
+            if ($endPage < $lastPage - 1) {
+                $html .= '<li class="disabled"><span>...</span></li>';
+            }
+            $html .= '<li><a href="' . $currentUrl . $queryPrefix . 'page=' . $lastPage . '">' . $lastPage . '</a></li>';
+        }
+        
+        // Next page link
+        if ($currentPage < $lastPage) {
+            $html .= '<li><a href="' . $currentUrl . $queryPrefix . 'page=' . ($currentPage + 1) . '">&gt;</a></li>';
+        } else {
+            $html .= '<li class="disabled"><span>&gt;</span></li>';
+        }
+        
+        $html .= '</ul>';
+        $html .= '</div>';
+        $html .= '</div>';
+        $html .= '</div>';
+        
+        return $html;
+    }
 }
 ?> 

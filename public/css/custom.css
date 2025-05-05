@@ -1,0 +1,95 @@
+/* Custom styles for price range filter */
+.price-range-container {
+    padding: 10px;
+}
+
+.price-range-container p {
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.price-inputs-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.price-inputs-container input {
+    width: 45%;
+    text-align: center;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    padding: 8px 5px;
+    border: 1px solid #ddd;
+}
+
+.price-inputs-container .mx-2 {
+    font-weight: bold;
+    color: #333;
+}
+
+.range-slider {
+    width: 100%;
+    padding: 0 10px;
+    margin-top: 5px;
+    position: relative;
+}
+
+.range-slider:before,
+.range-slider:after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border: 1px solid #999;
+    border-radius: 50%;
+    top: 2px;
+    z-index: 2;
+}
+
+.range-slider:before {
+    left: 10px;
+}
+
+.range-slider:after {
+    right: 10px;
+}
+
+.form-control-range {
+    width: 100%;
+    height: 2px;
+    border-radius: 0;
+    background: #ccc;
+    outline: none;
+    -webkit-appearance: none;
+    margin: 8px 0;
+}
+
+.form-control-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid #999;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    cursor: pointer;
+    position: relative;
+    z-index: 3;
+}
+
+.form-control-range::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid #999;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    cursor: pointer;
+    position: relative;
+    z-index: 3;
+} 

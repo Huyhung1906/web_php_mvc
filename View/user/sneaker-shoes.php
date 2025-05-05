@@ -12,6 +12,8 @@ $filterController = new ProductFilterController();
 $result = $filterController->getFilteredSneakers();
 $sneakers = $result['products'];
 $sizes = $result['sizes'];
+$pagination = $result['pagination'];
+$paginationHtml = $result['paginationHtml'];
 
 // Check if user is logged in
 $isLoggedIn = isset($_SESSION['id_user']) && !empty($_SESSION['id_user']);
@@ -49,6 +51,34 @@ $username = $isLoggedIn ? $_SESSION['username'] : '';
 	<link rel="stylesheet" href="/web_php_mvc/public/css/bootstrap-datepicker.css">
 	<!-- Theme style  -->
 	<link rel="stylesheet" href="/web_php_mvc/public/css/style.css">
+	<!-- Custom styles for filters -->
+	<link rel="stylesheet" href="/web_php_mvc/public/css/custom.css">
+	<style>
+		.block-27 ul li {
+			display: inline-block;
+			margin-bottom: 4px;
+			font-weight: 400;
+		}
+		.block-27 ul li a, .block-27 ul li span {
+			color: #555;
+			text-align: center;
+			display: inline-block;
+			width: 40px;
+			height: 40px;
+			line-height: 40px;
+			border-radius: 50%;
+			border: 1px solid #e6e6e6;
+		}
+		.block-27 ul li.active a, .block-27 ul li.active span {
+			background: #88c8bc;
+			color: #fff;
+			border: 1px solid transparent;
+		}
+		.block-27 ul li.disabled span {
+			color: #ccc;
+			cursor: not-allowed;
+		}
+	</style>
 	</head>
 	<body>
 		
@@ -64,6 +94,11 @@ $username = $isLoggedIn ? $_SESSION['username'] : '';
 					<?php include 'filter.php'; ?>
 
 					<div class="col-lg-9 col-xl-9">
+						<div class="row">
+							<div class="col-md-12">
+								<p>Hiển thị <?php echo $pagination['from']; ?>-<?php echo $pagination['to']; ?> của <?php echo $pagination['total']; ?> sản phẩm</p>
+							</div>
+						</div>
 						<div class="row row-pb-md">
 							<?php if (isset($sneakers) && is_array($sneakers) && !empty($sneakers)): ?>
 								<?php foreach ($sneakers as $sneaker): ?>
@@ -97,21 +132,7 @@ $username = $isLoggedIn ? $_SESSION['username'] : '';
 						</div>
 						
 						<!-- Pagination -->
-						<div class="row">
-							<div class="col-md-12 text-center">
-								<div class="block-27">
-									<ul>
-										<li><a href="#">&lt;</a></li>
-										<li class="active"><span>1</span></li>
-										<li><a href="#">2</a></li>
-										<li><a href="#">3</a></li>
-										<li><a href="#">4</a></li>
-										<li><a href="#">5</a></li>
-										<li><a href="#">&gt;</a></li>
-									</ul>
-								</div>
-							</div>
-						</div>
+						<?php echo $paginationHtml; ?>
 					</div>
 				</div>
 			</div>

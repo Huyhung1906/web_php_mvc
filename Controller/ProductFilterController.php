@@ -14,54 +14,63 @@ class ProductFilterController {
     /**
      * Get filtered sneaker shoes
      * 
-     * @return array Filtered sneaker shoes
+     * @return array Filtered sneaker shoes with pagination
      */
     public function getFilteredSneakers() {
         $filters = $this->filterModel->parseFilterParams();
         $sizes = $this->filterModel->getAvailableSizes();
         
-        $sneakers = $this->productModel->getSneakerShoes($filters);
+        $result = $this->productModel->getSneakerShoes($filters);
+        $paginationHtml = $this->productModel->buildPaginationLinks($result['pagination'], $filters);
         
         return [
-            'products' => $sneakers,
+            'products' => $result['products'],
             'sizes' => $sizes,
-            'filters' => $filters
+            'filters' => $filters,
+            'pagination' => $result['pagination'],
+            'paginationHtml' => $paginationHtml
         ];
     }
     
     /**
      * Get filtered leather shoes
      * 
-     * @return array Filtered leather shoes
+     * @return array Filtered leather shoes with pagination
      */
     public function getFilteredLeatherShoes() {
         $filters = $this->filterModel->parseFilterParams();
         $sizes = $this->filterModel->getAvailableSizes();
         
-        $leatherShoes = $this->productModel->getLeatherShoes($filters);
+        $result = $this->productModel->getLeatherShoes($filters);
+        $paginationHtml = $this->productModel->buildPaginationLinks($result['pagination'], $filters);
         
         return [
-            'products' => $leatherShoes,
+            'products' => $result['products'],
             'sizes' => $sizes,
-            'filters' => $filters
+            'filters' => $filters,
+            'pagination' => $result['pagination'],
+            'paginationHtml' => $paginationHtml
         ];
     }
     
     /**
      * Get filtered children shoes
      * 
-     * @return array Filtered children shoes
+     * @return array Filtered children shoes with pagination
      */
     public function getFilteredChildrenShoes() {
         $filters = $this->filterModel->parseFilterParams();
         $sizes = $this->filterModel->getAvailableSizes();
         
-        $childrenShoes = $this->productModel->getChildrenShoes($filters);
+        $result = $this->productModel->getChildrenShoes($filters);
+        $paginationHtml = $this->productModel->buildPaginationLinks($result['pagination'], $filters);
         
         return [
-            'products' => $childrenShoes,
+            'products' => $result['products'],
             'sizes' => $sizes,
-            'filters' => $filters
+            'filters' => $filters,
+            'pagination' => $result['pagination'],
+            'paginationHtml' => $paginationHtml
         ];
     }
 } 

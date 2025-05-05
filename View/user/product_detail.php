@@ -102,7 +102,7 @@ if (!isset($product) || empty($product)) {
                                         <i class="icon-minus2"></i>
                                     </button>
                                 </span>
-                                <input type="text" id="quantity" name="quantity" class="form-control input-number" value="1" min="1" max="100">
+                                <input type="text" id="quantity" name="quantity" class="form-control input-number" value="1" min="1" max="10000">
                                 <span class="input-group-btn ml-1">
                                     <button type="button" class="quantity-right-plus btn" data-type="plus" data-field="">
                                         <i class="icon-plus2"></i>
@@ -220,10 +220,16 @@ if (!isset($product) || empty($product)) {
     <script>
         $(document).ready(function(){
             var quantitiy = 0;
+            var maxQuantity = 10000;
+            
             $('.quantity-right-plus').click(function(e){
                 e.preventDefault();
                 var quantity = parseInt($('#quantity').val());
-                $('#quantity').val(quantity + 1);
+                if(quantity < maxQuantity) {
+                    $('#quantity').val(quantity + 1);
+                } else {
+                    alert('Maximum order quantity is 10,000 items');
+                }
             });
 
             $('.quantity-left-minus').click(function(e){
@@ -231,6 +237,17 @@ if (!isset($product) || empty($product)) {
                 var quantity = parseInt($('#quantity').val());
                 if(quantity > 1){
                     $('#quantity').val(quantity - 1);
+                }
+            });
+            
+            // Validate manual input
+            $('#quantity').on('change', function() {
+                var quantity = parseInt($(this).val());
+                if(isNaN(quantity) || quantity < 1) {
+                    $(this).val(1);
+                } else if(quantity > maxQuantity) {
+                    alert('Maximum order quantity is 10,000 items');
+                    $(this).val(maxQuantity);
                 }
             });
             
@@ -250,7 +267,12 @@ if (!isset($product) || empty($product)) {
                     return;
                 }
                 
-                var quantity = $('#quantity').val();
+                var quantity = parseInt($('#quantity').val());
+                if(quantity > maxQuantity) {
+                    alert('Maximum order quantity is 10,000 items');
+                    $('#quantity').val(maxQuantity);
+                    return;
+                }
                 
                 // AJAX request to add to cart
                 $.ajax({
@@ -290,7 +312,13 @@ if (!isset($product) || empty($product)) {
                     return;
                 }
                 
-                var quantity = $('#quantity').val();
+                var quantity = parseInt($('#quantity').val());
+                if(quantity > maxQuantity) {
+                    alert('Maximum order quantity is 10,000 items');
+                    $('#quantity').val(maxQuantity);
+                    return;
+                }
+                
                 // Add product to cart first
                 $.ajax({
                     url: '/web_php_mvc/process_cart.php',

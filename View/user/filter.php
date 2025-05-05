@@ -4,6 +4,10 @@ $size = isset($_GET['size']) ? $_GET['size'] : 'all';
 $priceRange = isset($_GET['price']) ? $_GET['price'] : 'all';
 $sortBy = isset($_GET['sort']) ? $_GET['sort'] : 'price_asc';
 
+// Get price min and max from URL if they exist
+$priceMin = isset($_GET['price_min']) ? $_GET['price_min'] : '7990000';
+$priceMax = isset($_GET['price_max']) ? $_GET['price_max'] : '149990000';
+
 // Get available sizes from database if not provided
 $sizes = isset($sizes) ? $sizes : ['36', '37', '38', '39', '40', '41', '42', '43'];
 ?>
@@ -24,13 +28,17 @@ $sizes = isset($sizes) ? $sizes : ['36', '37', '38', '39', '40', '41', '42', '43
         <div class="col-sm-12">
             <div class="side border mb-1">
                 <h3>Price Range</h3>
-                <select class="form-control filter-control" id="priceRange" name="price">
-                    <option value="all" <?php echo $priceRange === 'all' ? 'selected' : ''; ?>>Tất cả</option>
-                    <option value="under_1m" <?php echo $priceRange === 'under_1m' ? 'selected' : ''; ?>>Under 1,000,000đ</option>
-                    <option value="1m_2m" <?php echo $priceRange === '1m_2m' ? 'selected' : ''; ?>>1,000,000đ - 2,000,000đ</option>
-                    <option value="2m_3m" <?php echo $priceRange === '2m_3m' ? 'selected' : ''; ?>>2,000,000đ - 3,000,000đ</option>
-                    <option value="over_3m" <?php echo $priceRange === 'over_3m' ? 'selected' : ''; ?>>Over 3,000,000đ</option>
-                </select>
+                <div class="price-range-container">
+                    <p>Hoặc nhập khoảng giá phù hợp với bạn:</p>
+                    <div class="price-inputs-container d-flex mb-2">
+                        <input type="text" id="priceMin" name="price_min" class="form-control" value="7.990.000đ">
+                        <span class="mx-2 my-auto">~</span>
+                        <input type="text" id="priceMax" name="price_max" class="form-control" value="149.990.000đ">
+                    </div>
+                    <div class="range-slider">
+                        <input type="range" id="priceSlider" min="0" max="150000000" step="1000000" class="form-control-range">
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-sm-12">
@@ -52,19 +60,96 @@ $sizes = isset($sizes) ? $sizes : ['36', '37', '38', '39', '40', '41', '42', '43
 document.addEventListener('DOMContentLoaded', function() {
     const applyButton = document.getElementById('applyFilters');
     const filterControls = document.querySelectorAll('.filter-control');
+    const priceMinInput = document.getElementById('priceMin');
+    const priceMaxInput = document.getElementById('priceMax');
+    const priceSlider = document.getElementById('priceSlider');
     
-    applyButton.addEventListener('click', function() {
-        const size = document.getElementById('shoeSize').value;
-        const price = document.getElementById('priceRange').value;
-        const sort = document.getElementById('sortBy').value;
+    // Default min and max values
+    const minPrice = 0;
+    const maxPrice = 150000000;
+    
+    // Format price inputs with dots as thousands separator and đ symbol
+    function formatPriceInput(input) {
+        // Remove non-numeric characters
+        let value = input.value.replace(/[^\d]/g, '');
         
-        // Get current URL without query parameters
-        let url = window.location.href.split('?')[0];
+        // Format with dots and đ
+        if (value) {
+            input.value = Number(value).toLocaleString('vi-VN').replace(/,/g, '.') + 'đ';
+        }
         
-        // Add filter parameters
-        url += `?size=${size}&price=${price}&sort=${sort}`;
+        return value;
+    }
+    
+    // Set slider value based on min and max inputs
+    const updateSliderFromInputs = () => {
+        if (!priceSlider) return;
         
-        window.location.href = url;
-    });
+        const minValue = parseInt(priceMinInput.value.replace(/[^\d]/g, '')) || minPrice;
+        const maxValue = parseInt(priceMaxInput.value.replace(/[^\d]/g, '')) || maxPrice;
+        
+        // Calculate a value for the single slider that represents the position between min and max
+        const percentage = (minValue + maxValue) / 2;
+        priceSlider.value = percentage;
+    };
+    
+    // Update price range when slider changes
+    if (priceSlider) {
+        priceSlider.addEventListener('input', function() {
+            // This is a simple implementation for a single slider that updates both min and max
+            const sliderValue = parseInt(this.value);
+            const range = maxPrice - minPrice;
+            
+            // Create a range around the slider value
+            const rangeWidth = range * 0.2; // Adjust this value to control the range width
+            let newMin = Math.max(minPrice, Math.round((sliderValue - rangeWidth/2) / 1000000) * 1000000);
+            let newMax = Math.min(maxPrice, Math.round((sliderValue + rangeWidth/2) / 1000000) * 1000000);
+            
+            // Update the input fields
+            priceMinInput.value = Number(newMin).toLocaleString('vi-VN').replace(/,/g, '.') + 'đ';
+            priceMaxInput.value = Number(newMax).toLocaleString('vi-VN').replace(/,/g, '.') + 'đ';
+        });
+    }
+    
+    // Initialize formatting on inputs
+    if (priceMinInput) formatPriceInput(priceMinInput);
+    if (priceMaxInput) formatPriceInput(priceMaxInput);
+    
+    // Update slider when inputs change
+    if (priceMinInput) {
+        priceMinInput.addEventListener('blur', function() {
+            formatPriceInput(this);
+            updateSliderFromInputs();
+        });
+    }
+    
+    if (priceMaxInput) {
+        priceMaxInput.addEventListener('blur', function() {
+            formatPriceInput(this);
+            updateSliderFromInputs();
+        });
+    }
+    
+    // Initialize slider position
+    updateSliderFromInputs();
+    
+    if (applyButton) {
+        applyButton.addEventListener('click', function() {
+            const size = document.getElementById('shoeSize').value;
+            const sort = document.getElementById('sortBy').value;
+            
+            // Get price values (remove non-numeric characters)
+            const priceMin = priceMinInput ? priceMinInput.value.replace(/[^\d]/g, '') : '';
+            const priceMax = priceMaxInput ? priceMaxInput.value.replace(/[^\d]/g, '') : '';
+            
+            // Get current URL without query parameters
+            let url = window.location.href.split('?')[0];
+            
+            // Add filter parameters
+            url += `?size=${size}&price_min=${priceMin}&price_max=${priceMax}&sort=${sort}`;
+            
+            window.location.href = url;
+        });
+    }
 });
 </script> 
