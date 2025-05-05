@@ -2,6 +2,7 @@
 <?php
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../Model/user.php';
+require_once __DIR__ . '/../../Model/Order.php';
 
 // Initialize session if not already started
 if (session_status() == PHP_SESSION_NONE) {
@@ -20,6 +21,10 @@ $username = $_SESSION['username'];
 // Get user addresses
 $userModel = new UserModel();
 $userAddresses = $userModel->getUserAddresses($userId);
+
+// Get user orders
+$orderModel = new Order();
+$userOrders = $orderModel->getOrdersByUser($userId);
 ?>
 <html>
 	<head>
@@ -87,8 +92,51 @@ $userAddresses = $userModel->getUserAddresses($userId);
 					<div class="col-md-8">
 						<div class="profile-card">
 							<h3>Recent Orders</h3>
-							<p>You haven't placed any orders yet.</p>
-							<a href="index.php" class="btn btn-primary">Start Shopping</a>
+							<?php if (empty($userOrders)): ?>
+								<p>You have not placed any orders yet.</p>
+								<a href="index.php" class="btn btn-primary">Shop now</a>
+							<?php else: ?>
+								<div class="table-responsive">
+									<table class="table table-bordered">
+										<thead>
+											<tr>
+												<th>Order ID</th>
+												<th>Date</th>
+												<th>Shipping Address</th>
+												<th>Payment Method</th>
+												<th>Total</th>
+												<th>Details</th>
+											</tr>
+										</thead>
+										<tbody>
+										<?php foreach ($userOrders as $order): ?>
+											<tr>
+												<td><?php echo $order['id']; ?></td>
+												<td><?php echo $order['created_at']; ?></td>
+												<td><?php echo htmlspecialchars($order['address']); ?></td>
+												<td><?php echo htmlspecialchars($order['payment_method']); ?></td>
+												<td><?php echo number_format($order['total'], 0, ',', '.'); ?> đ</td>
+												<td>
+													<ul style="padding-left: 18px; margin-bottom: 0;">
+														<?php foreach ($order['items'] as $item): ?>
+															<li>
+																<?php echo htmlspecialchars($item['product_name']); ?> 
+																(Qty: <?php echo $item['quantity']; ?>, Price: <?php echo number_format($item['price'], 0, ',', '.'); ?> đ)
+																<button class="btn btn-sm btn-info warranty-btn" 
+																	data-order-item-id="<?php echo $item['id']; ?>"
+																	data-product-name="<?php echo htmlspecialchars($item['product_name']); ?>">
+																	Warranty
+																</button>
+															</li>
+														<?php endforeach; ?>
+													</ul>
+												</td>
+											</tr>
+										<?php endforeach; ?>
+										</tbody>
+									</table>
+								</div>
+							<?php endif; ?>
 						</div>
 					</div>
 				</div>
@@ -222,8 +270,9 @@ $userAddresses = $userModel->getUserAddresses($userId);
 	<script src="/web_php_mvc/public/js/jquery.flexslider-min.js"></script>
 	<!-- Owl carousel -->
 	<script src="/web_php_mvc/public/js/owl.carousel.min.js"></script>
-	<!-- Magnific Popup -->
+	<!-- Magnific Popup plugin -->
 	<script src="/web_php_mvc/public/js/jquery.magnific-popup.min.js"></script>
+	<!-- Your custom options -->
 	<script src="/web_php_mvc/public/js/magnific-popup-options.js"></script>
 	<!-- Date Picker -->
 	<script src="/web_php_mvc/public/js/bootstrap-datepicker.js"></script>
@@ -231,6 +280,41 @@ $userAddresses = $userModel->getUserAddresses($userId);
 	<script src="/web_php_mvc/public/js/jquery.stellar.min.js"></script>
 	<!-- Main -->
 	<script src="/web_php_mvc/public/js/main.js"></script>
+
+	<!-- Warranty Modal -->
+	<div class="modal fade" id="warrantyModal" tabindex="-1" role="dialog" aria-labelledby="warrantyModalLabel" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<h5 class="modal-title" id="warrantyModalLabel">Warranty Information</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			  <span aria-hidden="true">&times;</span>
+			</button>
+		  </div>
+		  <div class="modal-body" id="warrantyModalBody">
+			<!-- Nội dung sẽ được load bằng AJAX -->
+		  </div>
+		</div>
+	  </div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
+	<script src="/web_php_mvc/public/js/magnific-popup-options.js"></script>
+	<script>
+	$(function() {
+		$('.warranty-btn').on('click', function() {
+			var orderItemId = $(this).data('order-item-id');
+			var productName = $(this).data('product-name');
+			// Gọi AJAX để lấy thông tin bảo hành
+			$.post('/web_php_mvc/View/user/warranty_info.php', {order_item_id: orderItemId}, function(data) {
+				$('#warrantyModalLabel').text('Warranty for: ' + productName);
+				$('#warrantyModalBody').html(data);
+				$('#warrantyModal').modal('show');
+			});
+		});
+	});
+	</script>
 
 	</body>
 </html> 

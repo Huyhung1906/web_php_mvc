@@ -29,4 +29,22 @@ $router->post('/place-order', 'CartController@placeOrder');
 $router->get('/profile', 'UserProfileController@index');
 $router->post('/update-profile', 'UserProfileController@update');
 $router->post('/add-address', 'UserProfileController@addAddress');
+
+// Admin Product Management
+$router->get('/admin/products', 'AdminProduct@index');
+$router->post('/admin/products/get-products', 'AdminProduct@getProducts');
+$router->get('/admin/products/add', 'AdminProduct@showAddForm');
+$router->post('/admin/products/add', 'AdminProduct@addProduct');
+$router->get('/admin/products/edit/{id}', 'AdminProduct@showEditForm');
+$router->post('/admin/products/edit/{id}', 'AdminProduct@updateProduct');
+$router->post('/admin/products/delete/{id}', 'AdminProduct@deleteProduct');
+$router->post('/admin/products/delete-image/{id}', 'AdminProduct@deleteImage');
+
+// Admin Product Variant Management
+$router->get('/admin/product-variants', 'AdminProductVariant@index');
+$router->post('/admin/product-variants/get-variants', 'AdminProductVariant@getVariants');
+$router->get('/admin/product-variants/add', 'AdminProductVariant@showAddForm');
+$router->post('/admin/product-variants/add', 'AdminProductVariant@addVariant');
+$router->get('/admin/product-variants/edit/{id}', 'AdminProductVariant@showEditForm');
+
 ?>
