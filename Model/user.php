@@ -74,17 +74,6 @@ class UserModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
-    /**
-     * Add a new address for a user or update if already exists
-     * 
-     * @param int $userId The user ID
-     * @param string $province The province
-     * @param string $district The district
-     * @param string $ward The ward
-     * @param string $street The street
-     * @param string $addressType The address type
-     * @return bool True if successful, false otherwise
-     */
     public function addAddress($userId, $province, $district, $ward, $street, $addressType) {
         try {
             // Check if address already exists for this user

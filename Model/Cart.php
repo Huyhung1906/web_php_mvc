@@ -9,14 +9,6 @@ class Cart {
         $this->db = $conn;
     }
     
-    /**
-     * Add a product to the cart
-     * 
-     * @param int $userId User ID
-     * @param int $variantId Product variant ID
-     * @param int $quantity Quantity to add
-     * @return bool True if successful, false otherwise
-     */
     public function addToCart($userId, $variantId, $quantity = 1) {
         try {
             error_log("Adding to cart - User ID: $userId, Variant ID: $variantId, Quantity: $quantity");
@@ -62,12 +54,6 @@ class Cart {
         }
     }
     
-    /**
-     * Get all items in a user's cart
-     * 
-     * @param int $userId User ID
-     * @return array Cart items with product details
-     */
     public function getCart($userId) {
         try {
             error_log("Getting cart for User ID: $userId");
@@ -148,14 +134,6 @@ class Cart {
         }
     }
     
-    /**
-     * Update cart item quantity
-     * 
-     * @param int $userId User ID
-     * @param int $variantId Product variant ID
-     * @param int $quantity New quantity
-     * @return bool True if successful, false otherwise
-     */
     public function updateCartItemQuantity($userId, $variantId, $quantity) {
         try {
             if ($quantity <= 0) {
@@ -177,13 +155,6 @@ class Cart {
         }
     }
     
-    /**
-     * Remove an item from the cart
-     * 
-     * @param int $userId User ID
-     * @param int $variantId Product variant ID
-     * @return bool True if successful, false otherwise
-     */
     public function removeFromCart($userId, $variantId) {
         try {
             $query = "DELETE FROM cart WHERE id_user = :user_id AND id_variant = :variant_id";
@@ -198,12 +169,6 @@ class Cart {
         }
     }
     
-    /**
-     * Clear all items from a user's cart
-     * 
-     * @param int $userId User ID
-     * @return bool True if successful, false otherwise
-     */
     public function clearCart($userId) {
         try {
             $query = "DELETE FROM cart WHERE id_user = :user_id";
@@ -217,12 +182,6 @@ class Cart {
         }
     }
     
-    /**
-     * Count items in cart
-     * 
-     * @param int $userId User ID
-     * @return int Number of items in cart
-     */
     public function getCartCount($userId) {
         try {
             $query = "SELECT SUM(quantity) as count FROM cart WHERE id_user = :user_id";
@@ -235,6 +194,114 @@ class Cart {
         } catch (PDOException $e) {
             error_log("Database Error in getCartCount: " . $e->getMessage());
             return 0;
+        }
+    }
+    
+    public function getCartPromotions($userId) {
+        try {
+            global $conn;
+            
+            // Get current cart items
+            $cartItems = $this->getCart($userId);
+            if (empty($cartItems)) {
+                return [];
+            }
+            
+            // Extract product IDs from cart
+            $productIds = [];
+            foreach ($cartItems as $item) {
+                if (isset($item['id_product'])) {
+                    $productIds[] = $item['id_product'];
+                }
+            }
+            
+            if (empty($productIds)) {
+                return [];
+            }
+            
+            // Get current date for promotion validation
+            $currentDate = date('Y-m-d');
+            
+            // Get promotions for these products
+            $placeholders = str_repeat('?,', count($productIds) - 1) . '?';
+            $query = "
+                SELECT p.id_promotion, p.name_promotion, p.start_date, p.end_date, 
+                       p.discount_type, p.discount_value, p.status,
+                       pp.id_product, pp.promotion_price
+                FROM promotions p
+                JOIN promotion_product pp ON p.id_promotion = pp.id_promotion
+                WHERE pp.id_product IN ($placeholders)
+                AND p.status = 'active'
+                AND p.start_date <= ?
+                AND p.end_date >= ?
+            ";
+            
+            $params = array_merge($productIds, [$currentDate, $currentDate]);
+            
+            $stmt = $conn->prepare($query);
+            $stmt->execute($params);
+            
+            $promotions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $result = [];
+            
+            // Organize promotions by product
+            foreach ($promotions as $promo) {
+                $productId = $promo['id_product'];
+                if (!isset($result[$productId])) {
+                    $result[$productId] = [];
+                }
+                $result[$productId][] = $promo;
+            }
+            
+            return $result;
+        } catch (PDOException $e) {
+            error_log("Database Error in getCartPromotions: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    public function applyPromotions($userId) {
+        try {
+            $cartItems = $this->getCart($userId);
+            if (empty($cartItems)) {
+                return [];
+            }
+            
+            $promotionsByProduct = $this->getCartPromotions($userId);
+            if (empty($promotionsByProduct)) {
+                return $cartItems;
+            }
+            
+            // Apply promotions to each item
+            foreach ($cartItems as &$item) {
+                $productId = $item['id_product'];
+                
+                if (isset($promotionsByProduct[$productId]) && !empty($promotionsByProduct[$productId])) {
+                    // Get the best promotion for this product (lowest promotion price)
+                    $bestPromotion = null;
+                    $lowestPrice = $item['price'];
+                    
+                    foreach ($promotionsByProduct[$productId] as $promotion) {
+                        if ($promotion['promotion_price'] < $lowestPrice) {
+                            $bestPromotion = $promotion;
+                            $lowestPrice = $promotion['promotion_price'];
+                        }
+                    }
+                    
+                    if ($bestPromotion) {
+                        $item['original_price'] = $item['price'];
+                        $item['price'] = $bestPromotion['promotion_price'];
+                        $item['total_price'] = $item['price'] * $item['quantity'];
+                        $item['promotion'] = $bestPromotion;
+                        $item['discount'] = $item['original_price'] - $item['price'];
+                    }
+                }
+            }
+            
+            return $cartItems;
+        } catch (Exception $e) {
+            error_log("Error in applyPromotions: " . $e->getMessage());
+            return $cartItems;
         }
     }
 }

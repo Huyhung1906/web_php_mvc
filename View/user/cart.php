@@ -187,11 +187,21 @@ if (!isset($cartItems)) {
                                             <span style="display: inline-block; min-width: 45px;">Size:</span> <span style="font-weight: 500;"><?php echo htmlspecialchars($item['size_value'] ?? 'N/A'); ?></span>, 
                                             <span style="display: inline-block; min-width: 50px; margin-left: 10px;">Color:</span> <span style="font-weight: 500;"><?php echo htmlspecialchars($item['color_name'] ?? 'N/A'); ?></span>
                                         </p>
+                                        <?php if (isset($item['promotion'])): ?>
+                                        <p style="font-size: 13px; margin-top: 5px; text-align: left; color: #00c9a7; padding-left: 0;">
+                                            <i class="icon-tag"></i> <?php echo htmlspecialchars($item['promotion']['name_promotion'] ?? 'Khuyến mãi'); ?>
+                                        </p>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                                 <div class="one-eight text-center">
                                     <div class="display-tc">
+                                        <?php if (isset($item['original_price']) && $item['original_price'] > $item['price']): ?>
+                                        <span class="price" style="font-size: 14px; text-decoration: line-through; color: #999; display: block;"><?php echo number_format($item['original_price'], 0, ',', '.'); ?> đ</span>
+                                        <span class="price" style="font-size: 16px; font-weight: 500; color: #f45d01;"><?php echo number_format($item['price'], 0, ',', '.'); ?> đ</span>
+                                        <?php else: ?>
                                         <span class="price" style="font-size: 16px; font-weight: 500;"><?php echo number_format($item['price'], 0, ',', '.'); ?> đ</span>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                                 <div class="one-eight text-center">
@@ -241,7 +251,7 @@ if (!isset($cartItems)) {
                                     <form action="#">
                                         <div class="row form-group">
                                             <div class="col-sm-9">
-                                                <input type="text" name="coupon" class="form-control input-number" placeholder="Your Coupon Number...">
+                                                <input type="text" name="coupon" id="coupon-code" class="form-control input-number" placeholder="Your Coupon Number...">
                                             </div>
                                             <div class="col-sm-3">
                                                 <input type="button" value="Apply Coupon" class="btn btn-primary" id="apply-coupon">
@@ -255,14 +265,22 @@ if (!isset($cartItems)) {
 									<div class="sub">
 										<p><span style="font-weight: 500;">Subtotal:</span> <span id="subtotal" style="font-weight: 600;"><?php echo number_format($subTotal ?? 0, 0, ',', '.'); ?> đ</span></p>
 										<p><span style="font-weight: 500;">Delivery:</span> <span style="font-weight: 600;">0 đ</span></p>
-										<p><span style="font-weight: 500;">Discount:</span> <span id="discount" style="font-weight: 600;"><?php echo number_format($discount ?? 0, 0, ',', '.'); ?> đ</span></p>
+										<?php if ($discount > 0): ?>
+										<p><span style="font-weight: 500;">Discount:</span> <span id="discount" style="font-weight: 600; color: #f45d01;"><?php echo number_format($discount ?? 0, 0, ',', '.'); ?> đ</span></p>
+										<?php endif; ?>
+										<?php if (isset($_SESSION['applied_coupon'])): ?>
+										<p><span style="font-weight: 500;">Coupon (<?php echo htmlspecialchars($_SESSION['applied_coupon']['code']); ?>):</span> <span id="coupon-discount" style="font-weight: 600; color: #f45d01;"><?php echo number_format($_SESSION['applied_coupon']['discount'] ?? 0, 0, ',', '.'); ?> đ</span></p>
+										<?php endif; ?>
 									</div>
 									<div class="grand-total">
 										<p><span style="font-weight: 600;">Total:</span> <span id="total" style="font-weight: 700; color:rgb(0, 220, 180); font-size: 20px;"><?php echo number_format($total ?? 0, 0, ',', '.'); ?> đ</span></p>
 									</div>
                                     <?php if (isset($cartItems) && !empty($cartItems)): ?>
                                         <div class="mt-3">
-                                            <a href="/web_php_mvc/View/user/checkout.php" class="btn btn-primary btn-block" style="font-size: 16px; padding: 12px;">Tiến hành thanh toán</a>
+                                            <a href="/web_php_mvc/View/user/payment.php" class="btn btn-primary btn-block" style="font-size: 16px; padding: 12px;">Tiến hành thanh toán</a>
+                                        </div>
+                                        <div class="mt-2">
+                                            <button id="remove-recent-order" class="btn btn-secondary btn-block" style="font-size: 16px; padding: 12px;">Huỷ đơn hàng gần nhất</button>
                                         </div>
                                     <?php endif; ?>
 								</div>
@@ -336,9 +354,71 @@ if (!isset($cartItems)) {
                 }
             });
             
-            // Apply coupon (placeholder functionality)
+            // Apply coupon functionality
             $('#apply-coupon').on('click', function() {
-                alert('Coupon functionality will be implemented in the future.');
+                var couponCode = $('#coupon-code').val().trim();
+                
+                if (!couponCode) {
+                    alert('Please enter a coupon code.');
+                    return;
+                }
+                
+                $.ajax({
+                    url: '/web_php_mvc/process_cart.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        action: 'apply_coupon',
+                        coupon: couponCode
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            // Format numbers for display
+                            var formattedDiscount = new Intl.NumberFormat('vi-VN').format(response.total_discount);
+                            var formattedFinal = new Intl.NumberFormat('vi-VN').format(response.final_total);
+                            
+                            // Update displayed values
+                            $('#discount').text(formattedDiscount + ' đ');
+                            $('#total').text(formattedFinal + ' đ');
+                            
+                            // Show success message
+                            alert('Coupon applied: ' + response.coupon.name);
+                            
+                            // Reload the page to show updated totals
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred. Please try again later.');
+                    }
+                });
+            });
+            
+            // Remove most recent order
+            $('#remove-recent-order').on('click', function() {
+                if (confirm('Are you sure you want to cancel your most recent order?')) {
+                    $.ajax({
+                        url: '/web_php_mvc/process_cart.php',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            action: 'remove_recent_order'
+                        },
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                alert('Your most recent order has been cancelled.');
+                                location.reload();
+                            } else {
+                                alert(response.message || 'Failed to cancel order.');
+                            }
+                        },
+                        error: function() {
+                            alert('An error occurred. Please try again later.');
+                        }
+                    });
+                }
             });
             
             // Function to update cart item
