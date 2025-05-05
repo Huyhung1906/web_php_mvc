@@ -6,6 +6,7 @@ $registerController->handleRegister();
 
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +24,7 @@ $registerController->handleRegister();
         }
 
         .register-container {
-            max-width: 450px;
+            max-width: 650px;
             width: 100%;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
@@ -93,11 +94,12 @@ $registerController->handleRegister();
         }
     </style>
 </head>
+
 <body>
     <div class="register-container">
         <h3 class="text-center">Đăng ký tài khoản</h3>
-         <!-- Hiển thị thông báo lỗi nếu có -->
-         <?php if (isset($_SESSION['error_msg']) && !empty($_SESSION['error_msg'])): ?>
+        <!-- Hiển thị thông báo lỗi nếu có -->
+        <?php if (isset($_SESSION['error_msg']) && !empty($_SESSION['error_msg'])): ?>
             <div class="alert alert-danger text-center">
                 <?php echo $_SESSION['error_msg']; ?>
                 <?php unset($_SESSION['error_msg']); ?> <!-- Xóa thông báo lỗi sau khi hiển thị -->
@@ -112,20 +114,41 @@ $registerController->handleRegister();
             </div>
         <?php endif; ?>
         <form method="POST">
-            <div class="mb-3">
-                <label for="username" class="form-label">Tên đăng nhập</label>
-                <input type="text" class="form-control" id="username" name="username" required>
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label for="username" class="form-label">Tên đăng nhập</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+
+                <div class="mb-3 col-md-6">
+                    <label for="fullname" class="form-label">Họ và tên</label>
+                    <input type="text" class="form-control" id="fullname" name="fullname" required>
+                </div>
+
+                <div class="mb-3 col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+
+                <div class="mb-3 col-md-6">
+                    <label for="phone" class="form-label">Số điện thoại</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" required pattern="[0-9]{10,11}" title="Số điện thoại phải từ 10 đến 11 chữ số">
+                </div>
+
+                <div class="mb-3 col-md-6">
+                    <label for="password" class="form-label">Mật khẩu</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+
+                <div class="mb-4 col-md-6">
+                    <label for="confirm_password" class="form-label">Xác nhận mật khẩu</label>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Mật khẩu</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-            <div class="mb-4">
-                <label for="confirm_password" class="form-label">Xác nhận mật khẩu</label>
-                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-            </div>
+
             <button type="submit" class="btn btn-register w-100 text-white">Đăng ký</button>
         </form>
+
         <div class="text-center mt-4">
             <p class="mb-0">Đã có tài khoản? <a href="../auth/login.php" class="text-link">Đăng nhập ngay</a></p>
         </div>
@@ -133,4 +156,5 @@ $registerController->handleRegister();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

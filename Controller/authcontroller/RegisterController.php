@@ -9,6 +9,9 @@ class RegisterController {
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $username = trim($_POST['username'] ?? '');
             $password = trim($_POST['password'] ?? '');
+            $fullname = trim($_POST['fullname'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+            $phone = trim($_POST['phone'] ?? '');
             $confirm_password = trim($_POST['confirm_password'] ?? '');
 
             if (!empty($username) && !empty($password) && !empty($confirm_password)) {
@@ -19,7 +22,7 @@ class RegisterController {
                     if ($user->isUsernameExists($username)) {
                         $_SESSION['error_msg'] = "Tên đăng nhập đã tồn tại!";
                     } else {
-                        if ($user->register($username, $password)) {
+                        if ($user->register($username, $password,$fullname,$email,$phone)) {
                             $_SESSION['success_msg'] = "Đăng ký thành công! Bạn có thể đăng nhập ngay.";
                             header("Location: login.php");
                             exit();
