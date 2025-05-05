@@ -6,13 +6,13 @@ require_once __DIR__ . '/../../Model/Order.php';
 
 // Initialize session if not already started
 if (session_status() == PHP_SESSION_NONE) {
-    session_start();
+	session_start();
 }
 
 // Check if user is logged in
 if (!isset($_SESSION['id_user'])) {
-    header("Location: ../auth/login.php");
-    exit();
+	header("Location: ../auth/login.php");
+	exit();
 }
 
 $userId = $_SESSION['id_user'];
@@ -27,14 +27,15 @@ $orderModel = new Order();
 $userOrders = $orderModel->getOrdersByUser($userId);
 ?>
 <html>
-	<head>
+
+<head>
 	<title>User Profile - Footwear</title>
-   <meta charset="utf-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
-	
+
 	<!-- Animate.css -->
 	<link rel="stylesheet" href="/web_php_mvc/public/css/animate.css">
 	<!-- Icomoon Icon Fonts-->
@@ -54,10 +55,11 @@ $userOrders = $orderModel->getOrdersByUser($userId);
 	<link rel="stylesheet" href="/web_php_mvc/public/css/bootstrap-datepicker.css">
 	<!-- Theme style  -->
 	<link rel="stylesheet" href="/web_php_mvc/public/css/style.css">
-	
-	</head>
-	<body>
-		
+
+</head>
+
+<body>
+
 	<div class="colorlib-loader"></div>
 
 	<div id="page">
@@ -109,30 +111,30 @@ $userOrders = $orderModel->getOrdersByUser($userId);
 											</tr>
 										</thead>
 										<tbody>
-										<?php foreach ($userOrders as $order): ?>
-											<tr>
-												<td><?php echo $order['id']; ?></td>
-												<td><?php echo $order['created_at']; ?></td>
-												<td><?php echo htmlspecialchars($order['address']); ?></td>
-												<td><?php echo htmlspecialchars($order['payment_method']); ?></td>
-												<td><?php echo number_format($order['total'], 0, ',', '.'); ?> đ</td>
-												<td>
-													<ul style="padding-left: 18px; margin-bottom: 0;">
-														<?php foreach ($order['items'] as $item): ?>
-															<li>
-																<?php echo htmlspecialchars($item['product_name']); ?> 
-																(Qty: <?php echo $item['quantity']; ?>, Price: <?php echo number_format($item['price'], 0, ',', '.'); ?> đ)
-																<button class="btn btn-sm btn-info warranty-btn" 
-																	data-order-item-id="<?php echo $item['id']; ?>"
-																	data-product-name="<?php echo htmlspecialchars($item['product_name']); ?>">
-																	Warranty
-																</button>
-															</li>
-														<?php endforeach; ?>
-													</ul>
-												</td>
-											</tr>
-										<?php endforeach; ?>
+											<?php foreach ($userOrders as $order): ?>
+												<tr>
+													<td><?php echo $order['id']; ?></td>
+													<td><?php echo $order['created_at']; ?></td>
+													<td><?php echo htmlspecialchars($order['address']); ?></td>
+													<td><?php echo htmlspecialchars($order['payment_method']); ?></td>
+													<td><?php echo number_format($order['total'], 0, ',', '.'); ?> đ</td>
+													<td>
+														<ul style="padding-left: 18px; margin-bottom: 0;">
+															<?php foreach ($order['items'] as $item): ?>
+																<li>
+																	<?php echo htmlspecialchars($item['product_name']); ?>
+																	(Qty: <?php echo $item['quantity']; ?>, Price: <?php echo number_format($item['price'], 0, ',', '.'); ?> đ)
+																	<button class="btn btn-sm btn-info warranty-btn"
+																		data-order-item-id="<?php echo $item['id']; ?>"
+																		data-product-name="<?php echo htmlspecialchars($item['product_name']); ?>">
+																		Warranty
+																	</button>
+																</li>
+															<?php endforeach; ?>
+														</ul>
+													</td>
+												</tr>
+											<?php endforeach; ?>
 										</tbody>
 									</table>
 								</div>
@@ -150,14 +152,14 @@ $userOrders = $orderModel->getOrdersByUser($userId);
 									<?php unset($_SESSION['address_error']); ?>
 								</div>
 							<?php endif; ?>
-							
+
 							<?php if (isset($_SESSION['address_success'])): ?>
 								<div class="alert alert-success">
 									<?php echo htmlspecialchars($_SESSION['address_success']); ?>
 									<?php unset($_SESSION['address_success']); ?>
 								</div>
 							<?php endif; ?>
-							
+
 							<?php if (empty($userAddresses)): ?>
 								<p>You don't have any saved addresses.</p>
 							<?php else: ?>
@@ -186,7 +188,7 @@ $userOrders = $orderModel->getOrdersByUser($userId);
 									</table>
 								</div>
 							<?php endif; ?>
-							
+
 							<h4 class="mt-4">Add New Address/Or Edit Address</h4>
 							<form action="/web_php_mvc/View/user/add-address.php" method="post" class="mt-3">
 								<div class="row">
@@ -255,66 +257,63 @@ $userOrders = $orderModel->getOrdersByUser($userId);
 	<div class="gototop js-top">
 		<a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 	</div>
-	
 	<!-- jQuery -->
-	<script src="/web_php_mvc/public/js/jquery.min.js"></script>
-   <!-- popper -->
-   <script src="/web_php_mvc/public/js/popper.min.js"></script>
-   <!-- bootstrap 4.1 -->
-   <script src="/web_php_mvc/public/js/bootstrap.min.js"></script>
-   <!-- jQuery easing -->
-   <script src="/web_php_mvc/public/js/jquery.easing.1.3.js"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 	<!-- Waypoints -->
-	<script src="/web_php_mvc/public/js/jquery.waypoints.min.js"></script>
-	<!-- Flexslider -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
+
+	<!-- Các plugin khác -->
+	<script src="/web_php_mvc/public/js/popper.min.js"></script>
+	<script src="/web_php_mvc/public/js/bootstrap.min.js"></script>
+	<script src="/web_php_mvc/public/js/jquery.easing.1.3.js"></script>
 	<script src="/web_php_mvc/public/js/jquery.flexslider-min.js"></script>
-	<!-- Owl carousel -->
 	<script src="/web_php_mvc/public/js/owl.carousel.min.js"></script>
-	<!-- Magnific Popup plugin -->
 	<script src="/web_php_mvc/public/js/jquery.magnific-popup.min.js"></script>
-	<!-- Your custom options -->
 	<script src="/web_php_mvc/public/js/magnific-popup-options.js"></script>
-	<!-- Date Picker -->
 	<script src="/web_php_mvc/public/js/bootstrap-datepicker.js"></script>
-	<!-- Stellar Parallax -->
 	<script src="/web_php_mvc/public/js/jquery.stellar.min.js"></script>
-	<!-- Main -->
+
+	<!-- Cuối cùng là main.js -->
 	<script src="/web_php_mvc/public/js/main.js"></script>
+
 
 	<!-- Warranty Modal -->
 	<div class="modal fade" id="warrantyModal" tabindex="-1" role="dialog" aria-labelledby="warrantyModalLabel" aria-hidden="true">
-	  <div class="modal-dialog" role="document">
-		<div class="modal-content">
-		  <div class="modal-header">
-			<h5 class="modal-title" id="warrantyModalLabel">Warranty Information</h5>
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			  <span aria-hidden="true">&times;</span>
-			</button>
-		  </div>
-		  <div class="modal-body" id="warrantyModalBody">
-			<!-- Nội dung sẽ được load bằng AJAX -->
-		  </div>
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="warrantyModalLabel">Warranty Information</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body" id="warrantyModalBody">
+					<!-- Nội dung sẽ được load bằng AJAX -->
+				</div>
+			</div>
 		</div>
-	  </div>
 	</div>
 
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
 	<script src="/web_php_mvc/public/js/magnific-popup-options.js"></script>
 	<script>
-	$(function() {
-		$('.warranty-btn').on('click', function() {
-			var orderItemId = $(this).data('order-item-id');
-			var productName = $(this).data('product-name');
-			// Gọi AJAX để lấy thông tin bảo hành
-			$.post('/web_php_mvc/View/user/warranty_info.php', {order_item_id: orderItemId}, function(data) {
-				$('#warrantyModalLabel').text('Warranty for: ' + productName);
-				$('#warrantyModalBody').html(data);
-				$('#warrantyModal').modal('show');
+		$(function() {
+			$('.warranty-btn').on('click', function() {
+				var orderItemId = $(this).data('order-item-id');
+				var productName = $(this).data('product-name');
+				// Gọi AJAX để lấy thông tin bảo hành
+				$.post('/web_php_mvc/View/user/warranty_info.php', {
+					order_item_id: orderItemId
+				}, function(data) {
+					$('#warrantyModalLabel').text('Warranty for: ' + productName);
+					$('#warrantyModalBody').html(data);
+					$('#warrantyModal').modal('show');
+				});
 			});
 		});
-	});
 	</script>
 
-	</body>
-</html> 
+</body>
+
+</html>

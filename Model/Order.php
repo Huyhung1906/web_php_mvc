@@ -3,53 +3,52 @@ require_once __DIR__ . '/../config/config.php';
 
 class Order
 {
-    // Tạo đơn hàng mới
+    // Tạo hóa đơn mới
     public function createOrder($userId, $address, $paymentMethod, $cartItems, $total)
     {
         global $conn;
         try {
             $conn->beginTransaction();
 
-            // Lưu đơn hàng
-            $stmt = $conn->prepare("INSERT INTO orders (user_id, address, payment_method, total, created_at) VALUES (?, ?, ?, ?, NOW())");
+            // Lưu hóa đơn
+            $stmt = $conn->prepare("INSERT INTO invoice (id_user, CustomerAddress, Status, TotalAmount, InvoiceDate) VALUES (?, ?, ?, ?, NOW())");
             $stmt->execute([$userId, $address, $paymentMethod, $total]);
-            $orderId = $conn->lastInsertId();
+            $invoiceId = $conn->lastInsertId();
 
-            // Lưu từng sản phẩm trong đơn hàng
-            $stmtItem = $conn->prepare("INSERT INTO order_items (order_id, product_name, variant_id, quantity, price) VALUES (?, ?, ?, ?, ?)");
+            // Lưu từng sản phẩm trong chi tiết hóa đơn
+            $stmtItem = $conn->prepare("INSERT INTO invoicedetail (id_invoice, id_variant, quantity, sub_total) VALUES (?, ?, ?, ?)");
             foreach ($cartItems as $item) {
                 $stmtItem->execute([
-                    $orderId,
-                    $item['name_product'],
+                    $invoiceId,
                     $item['id_variant'],
                     $item['quantity'],
-                    $item['price']
+                    $item['price'] * $item['quantity'] // sub_total = price * quantity
                 ]);
             }
 
             $conn->commit();
-            return $orderId;
+            return $invoiceId;
         } catch (Exception $e) {
             $conn->rollBack();
-            error_log("Order creation failed: " . $e->getMessage());
+            error_log("Invoice creation failed: " . $e->getMessage());
             return false;
         }
     }
 
-    // Lấy danh sách đơn hàng của user
+    // Lấy danh sách hóa đơn của user
     public function getOrdersByUser($userId)
     {
         global $conn;
-        $stmt = $conn->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC");
+        $stmt = $conn->prepare("SELECT * FROM invoice WHERE id_user = ? ORDER BY InvoiceDate DESC");
         $stmt->execute([$userId]);
-        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Lấy chi tiết từng đơn hàng
-        foreach ($orders as &$order) {
-            $stmtItems = $conn->prepare("SELECT * FROM order_items WHERE order_id = ?");
-            $stmtItems->execute([$order['id']]);
-            $order['items'] = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
+        // Lấy chi tiết từng hóa đơn
+        foreach ($invoices as &$invoice) {
+            $stmtItems = $conn->prepare("SELECT * FROM invoicedetail WHERE id_invoice = ?");
+            $stmtItems->execute([$invoice['id_invoice']]);
+            $invoice['items'] = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
         }
-        return $orders;
+        return $invoices;
     }
-} 
+}
