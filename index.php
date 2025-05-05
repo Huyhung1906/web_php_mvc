@@ -19,8 +19,75 @@ $url = isset($_GET['url']) ? $_GET['url'] : '';
 $controller = isset($_GET['controller']) ? $_GET['controller'] : '';
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
+// Handle admin routes
+if (strpos($url, 'admin/') === 0) {
+    $adminPath = substr($url, 6); // Remove 'admin/' from the URL
+    
+    if ($adminPath === 'products') {
+        require_once 'Controller/admincontroller/adminProduct.php';
+        $adminProduct = new AdminProduct();
+        $adminProduct->index();
+    } elseif (preg_match('/^products\/get-products$/', $adminPath)) {
+        require_once 'Controller/admincontroller/adminProduct.php';
+        $adminProduct = new AdminProduct();
+        $adminProduct->getProducts();
+    } elseif (preg_match('/^products\/add$/', $adminPath)) {
+        require_once 'Controller/admincontroller/adminProduct.php';
+        $adminProduct = new AdminProduct();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $adminProduct->addProduct();
+        } else {
+            $adminProduct->showAddForm();
+        }
+    } elseif (preg_match('/^products\/edit\/(\d+)$/', $adminPath, $matches)) {
+        require_once 'Controller/admincontroller/adminProduct.php';
+        $adminProduct = new AdminProduct();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $adminProduct->updateProduct($matches[1]);
+        } else {
+            $adminProduct->showEditForm($matches[1]);
+        }
+    } elseif (preg_match('/^products\/delete\/(\d+)$/', $adminPath, $matches)) {
+        require_once 'Controller/admincontroller/adminProduct.php';
+        $adminProduct = new AdminProduct();
+        $adminProduct->deleteProduct($matches[1]);
+    } elseif (preg_match('/^products\/delete-image\/(\d+)$/', $adminPath, $matches)) {
+        require_once 'Controller/admincontroller/adminProduct.php';
+        $adminProduct = new AdminProduct();
+        $adminProduct->deleteImage($matches[1]);
+    } elseif ($adminPath === 'product_variants') {
+        require_once 'Controller/admincontroller/productvariant.php';
+        $ctrl = new ProductVariant();
+        $ctrl->index();
+    } elseif (preg_match('/^product_variants\/get-variants$/', $adminPath)) {
+        require_once 'Controller/admincontroller/productvariant.php';
+        $ctrl = new ProductVariant();
+        $ctrl->getVariants();
+    } elseif (preg_match('/^product_variants\/add$/', $adminPath)) {
+        require_once 'Controller/admincontroller/productvariant.php';
+        $ctrl = new ProductVariant();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $ctrl->addVariant();
+        } else {
+            $ctrl->showAddForm();
+        }
+    } elseif (preg_match('/^product_variants\/edit\/(\d+)$/', $adminPath, $matches)) {
+        require_once 'Controller/admincontroller/productvariant.php';
+        $ctrl = new ProductVariant();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $ctrl->updateVariant($matches[1]);
+        } else {
+            $ctrl->showEditForm($matches[1]);
+        }
+    } elseif (preg_match('/^product_variants\/delete\/(\d+)$/', $adminPath, $matches)) {
+        require_once 'Controller/admincontroller/productvariant.php';
+        $ctrl = new ProductVariant();
+        $ctrl->deleteVariant($matches[1]);
+    }
+    exit;
+}
 // Handle different controllers
-if ($controller === 'cart') {
+else if ($controller === 'cart') {
     $cartController = new CartController();
     
     if ($action === 'viewCart') {
