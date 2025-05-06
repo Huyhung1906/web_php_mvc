@@ -12,7 +12,7 @@
      <link rel="stylesheet" href="slidebar.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background-color: #f4f4f9; }
+        body { background-color: #f4f4f9; height: 100vh; }
         .container { 
             display: flex; 
             min-height: 100vh;
@@ -42,9 +42,11 @@
         }
         .main-content { 
             flex-grow: 1; 
-            padding: 20px;
-            margin-left: 80px;
-            width: calc(100% - 80px);
+            padding: 10px 30px;
+            margin-left: 60px;
+            width: calc(100% - 60px);
+            z-index: 1000;
+            height: 100vh;
         }
         .header { 
             display: flex; 
@@ -156,38 +158,6 @@
         .status-form option {
             color: #1a1f37;
         }
-        .filter-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .filter-bar .filter-input,
-        .filter-bar input[type="text"],
-        .filter-bar input[type="date"],
-        .filter-bar select {
-            min-width: 180px;
-            max-width: 250px;
-            padding: 7px 12px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 15px;
-            background: #fff;
-        }
-        @media (max-width: 768px) {
-            .filter-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .filter-bar .filter-input,
-            .filter-bar input[type="text"],
-            .filter-bar input[type="date"],
-            .filter-bar select {
-                min-width: 100%;
-                max-width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
@@ -195,7 +165,7 @@
         <?php include('slidebar.php'); ?>
         <div class="main-content">
             <div class="header">
-                <form method="GET" class="search-bar filter-bar" style="flex-wrap: wrap; gap: 10px; width: 100%;">
+                <form method="GET" class="search-bar" style="flex-wrap: wrap; gap: 10px; width: 100%;">
                     <input type="text" name="search" placeholder="Tìm kiếm hóa đơn..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
                     <select name="status">
                         <option value="">Tất cả trạng thái</option>
@@ -207,7 +177,7 @@
                     </select>
                     <input type="date" name="from_date" value="<?php echo isset($_GET['from_date']) ? htmlspecialchars($_GET['from_date']) : ''; ?>" placeholder="Từ ngày">
                     <input type="date" name="to_date" value="<?php echo isset($_GET['to_date']) ? htmlspecialchars($_GET['to_date']) : ''; ?>" placeholder="Đến ngày">
-                    <select name="province" id="province-select" class="filter-input">
+                    <select name="province" id="province-select">
                         <option value="">Tất cả tỉnh/thành</option>
                         <?php foreach ($provinces as $province): ?>
                             <option value="<?php echo htmlspecialchars($province); ?>" <?php if(isset($_GET['province']) && $_GET['province'] == $province) echo 'selected'; ?>>
@@ -215,7 +185,7 @@
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <select name="district" id="district-select" class="filter-input">
+                    <select name="district" id="district-select">
                         <option value="">Tất cả quận/huyện</option>
                         <!-- Các option sẽ được JS fill dựa trên tỉnh/thành đã chọn -->
                     </select>

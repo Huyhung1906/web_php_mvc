@@ -9,6 +9,14 @@ $productModel = new Product();
 $promotions = $promotionModel->getPromotions();
 $products = $productModel->getAllProducts();
 
+// Filter active promotions
+$activePromotions = array_filter($promotions, function($promotion) {
+    $currentDate = date('Y-m-d');
+    return $promotion['status'] == 1 && 
+           $promotion['start_date'] <= $currentDate && 
+           $promotion['end_date'] >= $currentDate;
+});
+
 $promotionProductModel = new PromotionProductModel();
 $allPromotionProducts = $promotionProductModel->getAllPromotionProducts();
 $productsWithPromotion = [];
@@ -179,7 +187,7 @@ foreach ($allPromotionProducts as $pp) {
             <label for="id_promotion">Chọn khuyến mãi:</label>
             <select name="id_promotion" id="id_promotion" required onchange="updatePromotionPrices()">
                 <option value="">-- Chọn khuyến mãi --</option>
-                <?php foreach ($promotions as $promotion): ?>
+                <?php foreach ($activePromotions as $promotion): ?>
                     <option 
                         value="<?php echo $promotion['id_promotions']; ?>"
                         data-type="<?php echo $promotion['discount_type']; ?>"
