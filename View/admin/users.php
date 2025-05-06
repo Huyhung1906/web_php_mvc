@@ -3,7 +3,6 @@ require_once('../../Controller/admincontroller/usercontroller.php');
 ?>
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,8 +15,9 @@ require_once('../../Controller/admincontroller/usercontroller.php');
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
         }
+
 
         body {
             background-color: #f5f7fb;
@@ -28,27 +28,7 @@ require_once('../../Controller/admincontroller/usercontroller.php');
             min-height: 100vh;
         }
 
-        .sidebar {
-            width: 60px;
-            background-color: #1a1f37;
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-        }
 
-        .sidebar a {
-            color: #a3a6b4;
-            display: block;
-            padding: 15px 0;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar a:hover,
-        .sidebar a.active {
-            color: white;
-            background-color: #2c3149;
-        }
 
         .main-content {
             flex-grow: 1;
@@ -115,7 +95,7 @@ require_once('../../Controller/admincontroller/usercontroller.php');
         .table td {
             padding: 14px 12px;
             border-bottom: 1px solid #eee;
-            text-align: center;
+            text-align: left;
         }
 
         .table thead {
@@ -145,15 +125,18 @@ require_once('../../Controller/admincontroller/usercontroller.php');
         .actions a.edit {
             color: #2980b9;
         }
-        .edit-link i {
-    color: #2980b9; /* Xanh cho biểu tượng bút */
-    transition: color 0.3s ease;
-}
 
-.delete-link i {
-    color: #dc3545; /* Đỏ cho biểu tượng thùng rác */
-    transition: color 0.3s ease;
-}
+        .edit-link i {
+            color: #2980b9;
+            /* Xanh cho biểu tượng bút */
+            transition: color 0.3s ease;
+        }
+
+        .delete-link i {
+            color: #dc3545;
+            /* Đỏ cho biểu tượng thùng rác */
+            transition: color 0.3s ease;
+        }
 
         @media (max-width: 768px) {
             .main-content {

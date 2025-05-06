@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once('../../Controller/admincontroller/invoiceController.php');
 ?>
 <!DOCTYPE html>
@@ -225,6 +225,7 @@ require_once('../../Controller/admincontroller/invoiceController.php');
 <body>
     <div class="container">
         <?php include('slidebar.php'); ?>
+        
         <div class="main-content">
             <div class="header">
                 <form method="GET" class="search-bar">
