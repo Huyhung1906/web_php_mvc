@@ -13,7 +13,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
         body { background-color: #f4f4f9; }
         .container { display: flex; min-height: 100vh; }
-        .sidebar { width: 80px; background-color: #1a1f37; color: white; padding: 20px 0; text-align: center; }
+        .sidebar { width: 50px; background-color: #1a1f37; color: white; padding: 20px 0; text-align: center; }
         .sidebar a { color: #a3a6b4; display: block; padding: 15px; text-decoration: none; }
         .sidebar a:hover, .sidebar a.active { color: white; background-color: #2c3149; }
         .main-content { flex-grow: 1; padding: 20px; }
@@ -61,9 +61,9 @@
                     <tbody>
                         <?php foreach ($top_products as $row) { ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($row['name']); ?></td>
-                                <td><?php echo number_format($row['price'], 0, ',', '.'); ?> VNĐ</td>
-                                <td><?php echo $row['quantity']; ?></td>
+                            <td><?php echo htmlspecialchars($row['name_product']); ?></td>
+                            <td><?php echo number_format($row['price'], 0, ',', '.'); ?> VNĐ</td>
+                            <td><?php echo $row['total_sold']; ?></td>  
                             </tr>
                         <?php } ?>
                     </tbody>

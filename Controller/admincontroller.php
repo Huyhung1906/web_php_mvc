@@ -22,4 +22,6 @@ if (isset($_GET['delete'])) {
 // Xử lý tìm kiếm
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $users = $model->getUsers($search);
+$revenue =$model->getTotalRevenue();
+$top_products = $model->getTopProducts();
 

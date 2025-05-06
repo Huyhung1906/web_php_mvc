@@ -172,7 +172,6 @@ require_once('../../Controller/admincontroller/usercontroller.php');
             /* Màu xám cho liên kết */
             pointer-events: none;
             /* Ngăn không cho người dùng click vào */
-            background-color: gray;
         }
     </style>
 </head>

@@ -34,7 +34,7 @@ class UserModel {
     // Đăng ký tài khoản
     public function register($username, $password,$fullname,$email,$phone) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $this->conn->prepare("INSERT INTO user (username, password, fullname,email,phone,id_role, is_active) VALUES (:username, :password,:fullname,:email,:phone, 2, 1)");
+        $stmt = $this->conn->prepare("INSERT INTO user (username, password, fullname,email,phone,id_role, is_active) VALUES (:username, :password,:fullname,:email,:phone, 3, 1)");
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':password', $hashed_password);
         $stmt->bindParam(':fullname', $fullname);

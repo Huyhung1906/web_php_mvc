@@ -24,13 +24,7 @@ class LoginController {
                         $_SESSION['username'] = $user['username']; 
                         $_SESSION['id_role'] = $user['id_role'];
                         $_SESSION['id_user'] = $user['id_user'];
-
-                        if ($user['id_role'] == 1) {
-                            $_SESSION['admin_logged_in'] = true;
-                            header("Location: ../admin/index.php");
-                        } else {
-                            header("Location: ../user/index.php");
-                        }
+                        header("Location: ../user/index.php");    
                         exit();
                     }
                 } else {
