@@ -1,6 +1,7 @@
 <?php
 // Highlight current page
 $activePage = 'variants';
+
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -77,9 +78,9 @@ $activePage = 'variants';
         <div class="main-content">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Quản lý biến thể sản phẩm</h2>
-                <a href="/web_php_mvc/admin/product_variants/add" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Thêm biến thể mới
-                </a>
+                <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addVariantModal">
+                    Thêm biến thể mới
+                </button>
             </div>
 
             <!-- Bộ lọc -->
@@ -166,6 +167,61 @@ $activePage = 'variants';
         </div>
     </div>
 
+    <!-- Modal thêm biến thể -->
+    <div class="modal fade" id="addVariantModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm biến thể mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addVariantForm">
+                        <div class="mb-3">
+                            <label for="add_product" class="form-label">Sản phẩm</label>
+                            <select class="form-select" id="add_product" name="product" required>
+                                <option value="">Chọn sản phẩm</option>
+                                <?php foreach ($products as $p): ?>
+                                    <option value="<?= $p['id_product'] ?>"><?= $p['name_product'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add_size" class="form-label">Kích cỡ</label>
+                            <select class="form-select" id="add_size" name="size" required>
+                                <option value="">Chọn kích cỡ</option>
+                                <?php foreach ($sizes as $s): ?>
+                                    <option value="<?= $s['id_size'] ?>"><?= $s['size_value'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="add_color" class="form-label">Màu sắc</label>
+                            <select class="form-select" id="add_color" name="color" required>
+                                <option value="">Chọn màu sắc</option>
+                                <?php foreach ($colors as $c): ?>
+                                    <option value="<?= $c['id_color'] ?>"><?= $c['name_color'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label">Số lượng</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" required min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="expired_date" class="form-label">Ngày hết hạn</label>
+                            <input type="date" class="form-control" id="expired_date" name="expired_date" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="saveVariantBtn">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -242,6 +298,41 @@ $activePage = 'variants';
             })
             .catch(() => alert('Có lỗi xảy ra'));
             deleteModal.hide();
+        });
+
+        // Xử lý thêm biến thể mới
+        document.getElementById('saveVariantBtn').addEventListener('click', () => {
+            console.log({
+                product: document.getElementById('add_product').value,
+                size: document.getElementById('add_size').value,
+                color: document.getElementById('add_color').value,
+                quantity: document.getElementById('quantity').value,
+                expired_date: document.getElementById('expired_date').value
+            });
+            const data = {
+                product: document.getElementById('add_product').value,
+                size: document.getElementById('add_size').value,
+                color: document.getElementById('add_color').value,
+                quantity: document.getElementById('quantity').value,
+                expired_date: document.getElementById('expired_date').value
+            };
+            fetch('/web_php_mvc/index.php?url=admin/product_variants/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.success) {
+                    loadVariants();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addVariantModal'));
+                    modal.hide();
+                    document.getElementById('addVariantForm').reset();
+                } else {
+                    alert('Thêm thất bại: ' + (res.error || 'Lỗi không xác định'));
+                }
+            })
+            .catch(() => alert('Có lỗi xảy ra'));
         });
     </script>
 </body>

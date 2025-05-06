@@ -43,6 +43,20 @@ class ProductVariantModel {
         return $this->conn->lastInsertId();
     }
 
+    // Kiểm tra biến thể đã tồn tại chưa
+    public function checkVariantExists($productId, $sizeId, $colorId) {
+        $sql = "SELECT COUNT(*) FROM product_variant 
+                WHERE id_product = :product 
+                AND id_size = :size 
+                AND id_color = :color";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':product', $productId);
+        $stmt->bindParam(':size', $sizeId);
+        $stmt->bindParam(':color', $colorId);
+        $stmt->execute();
+        return $stmt->fetchColumn() > 0;
+    }
+
     // Cập nhật variant
     public function updateVariant($id, $data) {
         $sql = "UPDATE product_variant SET id_product = :product, id_size = :size, id_color = :color, quantity = :quantity, expired_date = :expired WHERE id_variant = :id";

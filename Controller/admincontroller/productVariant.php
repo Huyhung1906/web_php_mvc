@@ -67,18 +67,39 @@ class ProductVariant {
 
     // Xử lý thêm biến thể
     public function addVariant() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'product' => $_POST['product'],
-                'size'    => $_POST['size'],
-                'color'   => $_POST['color'],
-                'quantity'=> $_POST['quantity'],
-                'expired' => $_POST['expired_date']
-            ];
-            $this->model->addVariant($data);
-            echo "<script>alert('Thêm biến thể thành công'); window.location.href='/web_php_mvc/admin/product_variants';</script>";
-            exit;
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            
+            // Validate dữ liệu
+            if (empty($data['product']) || empty($data['size']) || empty($data['color']) || 
+                !isset($data['quantity']) || empty($data['expired_date'])) {
+                throw new Exception('Vui lòng điền đầy đủ thông tin');
+            }
+
+            // Kiểm tra biến thể đã tồn tại chưa
+            $exists = $this->model->checkVariantExists($data['product'], $data['size'], $data['color']);
+            if ($exists) {
+                throw new Exception('Biến thể này đã tồn tại');
+            }
+
+            // Thêm biến thể mới
+            $result = $this->model->addVariant([
+                'product' => $data['product'],
+                'size' => $data['size'],
+                'color' => $data['color'],
+                'quantity' => $data['quantity'],
+                'expired' => $data['expired_date']
+            ]);
+
+            if ($result) {
+                echo json_encode(['success' => true]);
+            } else {
+                throw new Exception('Thêm biến thể thất bại');
+            }
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
+        exit;
     }
 
     // Hiển thị form sửa biến thể
