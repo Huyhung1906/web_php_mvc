@@ -28,6 +28,31 @@
             min-height: 100vh;
         }
 
+        .sidebar {
+            width: 50px;
+            background-color: #1a1f37;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar a {
+            color: #a3a6b4;
+            display: block;
+            padding: 15px;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            color: white;
+            background-color: #2c3149;
+        }
+
         .main-content {
             flex-grow: 1;
             padding: 20px;
@@ -51,7 +76,9 @@
     $activePage = 'products';
     ?>
     <div class="container">
-        <?php include(__DIR__ . '/slidebar.php'); ?>
+        <div class="sidebar">
+            <?php include(__DIR__ . '/slidebar.php'); ?>
+        </div>
 
         <div class="main-content">
             <div class="d-flex justify-content-between align-items-center mb-4">

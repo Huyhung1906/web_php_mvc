@@ -5,13 +5,13 @@ include '../../model/adminmodel.php';
 include '../../model/Invoice.php';
 
 
-if (!isset($_SESSION['id_role']) || $_SESSION['id_role'] != 1) {
-	header("Location: ../view/auth/login.php");
+if (!isset($_SESSION['id_role']) || $_SESSION['id_role'] == 3 ) {
+	header("Location: ../auth/login.php");
 	exit();
 }
 
 $model = new InvoiceModel($conn);
-
+$check = new AdminModel($conn);
 // Xử lý cập nhật trạng thái qua AJAX
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_invoice']) && isset($_POST['status'])) {
     $id_invoice = $_POST['id_invoice'];
