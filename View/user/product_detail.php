@@ -333,7 +333,7 @@ if (!isset($product) || empty($product)) {
                     success: function(response) {
                         if (response.status === 'success') {
                             // Redirect to checkout page
-                            window.location.href = '/web_php_mvc/checkout';
+                            window.location.href = '/web_php_mvc/View/user/payment.php';
                         } else {
                             alert(response.message);
                         }
