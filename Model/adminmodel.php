@@ -1,24 +1,28 @@
 <?php
-class AdminModel {
+class AdminModel
+{
     private $conn;
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->conn = $db;
     }
 
-    public function getCustomerCount() {
+    public function getCustomerCount()
+    {
         $query = $this->conn->prepare("SELECT COUNT(*) as total FROM user");
         $query->execute();
         return $query->fetch(PDO::FETCH_ASSOC)['total'];
     }
 
-    public function getOrderCount() {
+    public function getOrderCount()
+    {
         $query = $this->conn->prepare("SELECT COUNT(*) as total FROM invoice");
         $query->execute();
         return $query->fetch(PDO::FETCH_ASSOC)['total'];
-        
     }
-    public function getUsers($search = '') {
+    public function getUsers($search = '')
+    {
         $queryStr = "SELECT * FROM user";
         if ($search) {
             $queryStr .= " WHERE username LIKE :search OR email LIKE :search";
@@ -33,7 +37,8 @@ class AdminModel {
         return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function deleteUser($id) {
+    public function deleteUser($id)
+    {
         // Xóa các chi tiết bảo hành liên quan
         $deleteWarrantyDetailQuery = $this->conn->prepare("DELETE FROM warrantydetail WHERE id_warranty IN (SELECT id_warranty FROM warranty WHERE id_invoice IN (SELECT id_invoice FROM invoice WHERE id_user = ?))");
         $deleteWarrantyDetailQuery->execute([$id]);
@@ -69,15 +74,16 @@ class AdminModel {
         return $queryStr->execute();
     }
     public function checkUsernameExists($username)
-{
-    $query = $this->conn->prepare("SELECT COUNT(*) FROM user WHERE username = :username");
-    $query->bindParam(':username', $username);
-    $query->execute();
-    return $query->fetchColumn() > 0; // trả về true nếu tồn tại
-}
+    {
+        $query = $this->conn->prepare("SELECT COUNT(*) FROM user WHERE username = :username");
+        $query->bindParam(':username', $username);
+        $query->execute();
+        return $query->fetchColumn() > 0; // trả về true nếu tồn tại
+    }
 
 
-    public function getAllRoles() {
+    public function getAllRoles()
+    {
         $query = "SELECT id_role, name_role FROM role";
         $result = $this->conn->query($query);
 
@@ -87,7 +93,8 @@ class AdminModel {
         }
         return $roles;
     }
-    public function getAllUsersWithRole() {
+    public function getAllUsersWithRole()
+    {
         $sql = "SELECT user.*, role.name_role 
                 FROM user 
                 JOIN role ON user.id_role = role.id_role";
@@ -95,13 +102,38 @@ class AdminModel {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    public function canPerformAction($id_role, $permission_id) {
+    public function canPerformAction($id_role, $permission_id)
+    {
         $stmt = $this->conn->prepare("SELECT * FROM phanrole WHERE id_role = :id_role AND id_chitietrole = :permission_id");
         $stmt->bindParam(':id_role', $id_role);
         $stmt->bindParam(':permission_id', $permission_id);
         $stmt->execute();
-    
+
         return $stmt->rowCount() > 0;
     }
-    
+    public function getTotalRevenue()
+    {
+        $query = "SELECT SUM(TotalAmount) AS total FROM invoice";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['total'] ?? 0;
+    }
+    public function getTopProducts($limit = 5)
+    {
+        $sql = "SELECT p.name_product, p.price, SUM(idt.Quantity) as total_sold
+        FROM product p
+        JOIN product_variant pv ON p.id_product = pv.id_product
+        JOIN invoicedetail idt ON pv.id_variant = idt.id_variant
+        GROUP BY p.name_product, p.price
+        ORDER BY total_sold DESC
+        LIMIT :limit";
+
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

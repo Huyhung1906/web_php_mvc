@@ -15,7 +15,7 @@ require_once('../../Controller/admincontroller/rolecontroler.php');
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
         }
 
         body {

@@ -16,7 +16,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
         }
 
         body {
@@ -29,22 +29,19 @@
         }
 
         .sidebar {
-            width: 50px;
             background-color: #1a1f37;
             color: white;
-            padding: 20px 0;
+ 
             text-align: center;
             position: fixed;
             top: 0;
             left: 0;
             height: 100%;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar a {
             color: #a3a6b4;
             display: block;
-            padding: 15px;
             text-decoration: none;
         }
 

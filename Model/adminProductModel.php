@@ -167,5 +167,13 @@ class AdminProductModel {
         $stmt->bindParam(':id', $imageId);
         return $stmt->execute();
     }
+    public function canPerformAction($id_role, $permission_id) {
+        $stmt = $this->conn->prepare("SELECT * FROM phanrole WHERE id_role = :id_role AND id_chitietrole = :permission_id");
+        $stmt->bindParam(':id_role', $id_role);
+        $stmt->bindParam(':permission_id', $permission_id);
+        $stmt->execute();
+    
+        return $stmt->rowCount() > 0;
+    }
 }
 ?>

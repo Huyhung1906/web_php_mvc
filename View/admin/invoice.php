@@ -31,7 +31,6 @@ require_once('../../Controller/admincontroller/invoiceController.php');
         }
 
         .sidebar {
-            width: 60px;
             background-color: #1a1f37;
             color: white;
             padding: 20px 0;
