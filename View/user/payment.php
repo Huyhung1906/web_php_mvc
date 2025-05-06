@@ -10,7 +10,8 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // Kiểm tra đăng nhập
-if (!isset($_SESSION['id_user']) || empty($_SESSION['id_user'])) {
+$isLoggedIn = isset($_SESSION['id_user']) && !empty($_SESSION['id_user']);
+if (!$isLoggedIn) {
     header("Location: /web_php_mvc/View/auth/login.php");
     exit;
 }
@@ -20,7 +21,21 @@ $username = $_SESSION['username'];
 
 // Lấy giỏ hàng
 $cartModel = new Cart();
-$cartItems = $cartModel->getCart($userId);
+$cartItems = $cartModel->applyPromotions($userId);
+
+// Check for items exceeding quantity limit
+$exceededItems = [];
+foreach ($cartItems as $item) {
+    if ($item['quantity'] > 20) {
+        $exceededItems[] = $item['name_product'];
+    }
+}
+
+if (!empty($exceededItems)) {
+    $_SESSION['quantity_error'] = "Không thể thanh toán vì các sản phẩm sau vượt quá giới hạn số lượng (tối đa 20 sản phẩm cho mỗi loại): " . implode(", ", $exceededItems);
+    header("Location: /web_php_mvc/View/user/cart.php");
+    exit;
+}
 
 // Tính tổng tiền
 $subTotal = 0;
