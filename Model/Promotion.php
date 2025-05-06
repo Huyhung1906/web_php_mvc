@@ -101,96 +101,16 @@ class PromotionModel {
         return $stmt->execute();
     }
 
-    public function getActivePromotions() {
+    // Cập nhật trạng thái khuyến mãi
+    public function updatePromotionStatus($id, $status) {
         try {
-            $currentDate = date('Y-m-d');
-            
-            $stmt = $this->conn->prepare("
-                SELECT * FROM promotions 
-                WHERE status = 'active' 
-                AND start_date <= ? 
-                AND end_date >= ?
-            ");
-            $stmt->execute([$currentDate, $currentDate]);
-            
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Error getting active promotions: " . $e->getMessage());
-            return [];
-        }
-    }
-    
-    public function getProductPromotions($productId) {
-        try {
-            $currentDate = date('Y-m-d');
-            
-            $stmt = $this->conn->prepare("
-                SELECT p.*, pp.promotion_price 
-                FROM promotions p
-                JOIN promotion_product pp ON p.id_promotion = pp.id_promotion
-                WHERE pp.id_product = ?
-                AND p.status = 'active' 
-                AND p.start_date <= ? 
-                AND p.end_date >= ?
-            ");
-            $stmt->execute([$productId, $currentDate, $currentDate]);
-            
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Error getting product promotions: " . $e->getMessage());
-            return [];
-        }
-    }
-    
-    public function getPromotionByCode($code) {
-        try {
-            $currentDate = date('Y-m-d');
-            
-            $stmt = $this->conn->prepare("
-                SELECT * FROM promotions 
-                WHERE promo_code = ?
-                AND status = 'active' 
-                AND start_date <= ? 
-                AND end_date >= ?
-            ");
-            $stmt->execute([$code, $currentDate, $currentDate]);
-            
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Error getting promotion by code: " . $e->getMessage());
+            $stmt = $this->conn->prepare("UPDATE promotions SET status = :status WHERE id_promotions = :id");
+            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':status', $status);
+            return $stmt->execute();
+        } catch (Exception $e) {
+            error_log("Error updating promotion status: " . $e->getMessage());
             return false;
         }
-    }
-    
-    public function applyPromotionToProduct($product) {
-        if (!isset($product['id_product'])) {
-            return $product;
-        }
-        
-        $promotions = $this->getProductPromotions($product['id_product']);
-        
-        if (empty($promotions)) {
-            return $product;
-        }
-        
-        // Find the best promotion (lowest price)
-        $bestPromotion = null;
-        $bestPrice = $product['price'];
-        
-        foreach ($promotions as $promotion) {
-            if ($promotion['promotion_price'] < $bestPrice) {
-                $bestPromotion = $promotion;
-                $bestPrice = $promotion['promotion_price'];
-            }
-        }
-        
-        if ($bestPromotion) {
-            $product['original_price'] = $product['price'];
-            $product['price'] = $bestPromotion['promotion_price'];
-            $product['promotion'] = $bestPromotion;
-            $product['discount'] = $product['original_price'] - $product['price'];
-        }
-        
-        return $product;
     }
 }

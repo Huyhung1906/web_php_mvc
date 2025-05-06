@@ -8,19 +8,37 @@ class InvoiceModel {
 		$this->conn = $conn;
 	}
 	// Lấy danh sách hóa đơn
-	public function getInvoices($search = '') {
+	public function getInvoices($search = '', $status = '', $from_date = '', $to_date = '', $province = '', $district = '') {
 		try {
+			$sql = "SELECT * FROM invoice WHERE 1=1";
+			$params = [];
 			if ($search !== '') {
-				$stmt = $this->conn->prepare(
-					"SELECT * FROM invoice 
-					 WHERE id_invoice LIKE :search 
-					 OR CustomerName LIKE :search 
-					 OR CustomerPhone LIKE :search"
-				);
-				$likeSearch = "%$search%";
-				$stmt->bindParam(':search', $likeSearch);
-			} else {
-				$stmt = $this->conn->prepare("SELECT * FROM invoice");
+				$sql .= " AND (id_invoice LIKE :search OR CustomerName LIKE :search OR CustomerPhone LIKE :search)";
+				$params[':search'] = "%$search%";
+			}
+			if ($status !== '') {
+				$sql .= " AND Status = :status";
+				$params[':status'] = $status;
+			}
+			if ($from_date !== '') {
+				$sql .= " AND InvoiceDate >= :from_date";
+				$params[':from_date'] = $from_date;
+			}
+			if ($to_date !== '') {
+				$sql .= " AND InvoiceDate <= :to_date";
+				$params[':to_date'] = $to_date;
+			}
+			if ($province !== '') {
+				$sql .= " AND CustomerAddress LIKE :province	";
+				$params[':province'] = "%$province%";
+			}
+			if ($district !== '') {
+				$sql .= " AND CustomerAddress LIKE :district";
+				$params[':district'] = "%$district%";
+			}
+			$stmt = $this->conn->prepare($sql);
+			foreach ($params as $key => $value) {
+				$stmt->bindValue($key, $value);
 			}
 			$stmt->execute();
 			return $stmt->fetchAll(PDO::FETCH_ASSOC);

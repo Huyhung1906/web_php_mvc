@@ -21,19 +21,25 @@ require_once('../../Controller/admincontroller/invoiceController.php');
 
         body {
             background-color: #f4f4f9;
+            height: 100vh;
         }
 
         .container {
             display: flex;
             min-height: 100vh;
+            position: relative;
         }
 
         .sidebar {
-            width: 50px;
+            width: 60px;
             background-color: #1a1f37;
             color: white;
             padding: 20px 0;
             text-align: center;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
         }
 
         .sidebar a {
@@ -41,6 +47,7 @@ require_once('../../Controller/admincontroller/invoiceController.php');
             display: block;
             padding: 15px;
             text-decoration: none;
+            transition: all 0.3s ease;
         }
 
         .sidebar a:hover,
@@ -51,7 +58,11 @@ require_once('../../Controller/admincontroller/invoiceController.php');
 
         .main-content {
             flex-grow: 1;
-            padding: 20px;
+            padding: 10px 30px;
+            margin-left: 60px;
+            width: calc(100% - 60px);
+            z-index: 1000;
+            height: 100vh;
         }
 
         .header {
@@ -188,8 +199,6 @@ require_once('../../Controller/admincontroller/invoiceController.php');
         .status-form option {
             color: #1a1f37;
         }
-
-        /* Màu sắc cho các biểu tượng khi có quyền */
         .edit-link i {
             color: #28a745;
             /* Màu xanh cho biểu tượng bút */
@@ -225,19 +234,41 @@ require_once('../../Controller/admincontroller/invoiceController.php');
 <body>
     <div class="container">
         <?php include('slidebar.php'); ?>
-        
+
         <div class="main-content">
             <div class="header">
-                <form method="GET" class="search-bar">
+                <form method="GET" class="search-bar" style="flex-wrap: wrap; gap: 10px; width: 100%;">
                     <input type="text" name="search" placeholder="Tìm kiếm hóa đơn..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
-                    <button type="submit">Tìm</button>
+                    <select name="status">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="Đang xử lý" <?php if (isset($_GET['status']) && $_GET['status'] == 'Đang xử lý') echo 'selected'; ?>>Đang xử lý</option>
+                        <option value="Đã xác nhận" <?php if (isset($_GET['status']) && $_GET['status'] == 'Đã xác nhận') echo 'selected'; ?>>Đã xác nhận</option>
+                        <option value="Đang đóng hàng" <?php if (isset($_GET['status']) && $_GET['status'] == 'Đang đóng hàng') echo 'selected'; ?>>Đang đóng hàng</option>
+                        <option value="Đang giao" <?php if (isset($_GET['status']) && $_GET['status'] == 'Đang giao') echo 'selected'; ?>>Đang giao</option>
+                        <option value="Hoàn thành" <?php if (isset($_GET['status']) && $_GET['status'] == 'Hoàn thành') echo 'selected'; ?>>Hoàn thành</option>
+                    </select>
+                    <input type="date" name="from_date" value="<?php echo isset($_GET['from_date']) ? htmlspecialchars($_GET['from_date']) : ''; ?>" placeholder="Từ ngày">
+                    <input type="date" name="to_date" value="<?php echo isset($_GET['to_date']) ? htmlspecialchars($_GET['to_date']) : ''; ?>" placeholder="Đến ngày">
+                    <select name="province" id="province-select">
+                        <option value="">Tất cả tỉnh/thành</option>
+                        <?php foreach ($provinces as $province): ?>
+                            <option value="<?php echo htmlspecialchars($province); ?>" <?php if (isset($_GET['province']) && $_GET['province'] == $province) echo 'selected'; ?>>
+                                <?php echo htmlspecialchars($province); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <select name="district" id="district-select">
+                        <option value="">Tất cả quận/huyện</option>
+                        <!-- Các option sẽ được JS fill dựa trên tỉnh/thành đã chọn -->
+                    </select>
+                    <button type="submit">Lọc</button>
+                    <a href="invoice.php" class="btn btn-secondary" style="padding: 8px 15px; background: #ccc; color: #222; border-radius: 4px; text-decoration: none;">Đặt lại</a>
                 </form>
                 <?php if ($check->canPerformAction($_SESSION['id_role'], 12)) { ?>
-                <a href="add_invoice.php" class="add-button">+ Thêm Hóa đơn</a>
+                    <a href="add_invoice.php" class="add-button">+ Thêm Hóa đơn</a>
                 <?php } else { ?>
                     <a href="javascript:void(0);" class="no-permission-link">+ Thêm Hóa đơn</a> <!-- Liên kết màu xám khi không có quyền -->
                 <?php } ?>
-
             </div>
             <table class="table">
                 <thead>
@@ -267,10 +298,10 @@ require_once('../../Controller/admincontroller/invoiceController.php');
                                     <form class="status-form" data-id="<?php echo $invoice['id_invoice']; ?>">
                                         <select name="Status" class="status-select">
                                             <option value="Đang xử lý" <?php if ($invoice['Status'] == 'Đang xử lý') echo 'selected'; ?>>Đang xử lý</option>
-                                            <option value="Đã xác nhận" <?php if($invoice['Status']=='Đã xác nhận') echo 'selected'; ?>>Đã xác nhận</option>
-                                            <option value="Đang đóng hàng" <?php if($invoice['Status']=='Đang đóng hàng') echo 'selected'; ?>>Đang đóng hàng</option>
-                                            <option value="Hoàn thành" <?php if ($invoice['Status'] == 'Hoàn thành') echo 'selected'; ?>>Hoàn thành</option>
+                                            <option value="Đã xác nhận" <?php if ($invoice['Status'] == 'Đã xác nhận') echo 'selected'; ?>>Đã xác nhận</option>
+                                            <option value="Đang đóng hàng" <?php if ($invoice['Status'] == 'Đang đóng hàng') echo 'selected'; ?>>Đang đóng hàng</option>
                                             <option value="Đang giao" <?php if ($invoice['Status'] == 'Đang giao') echo 'selected'; ?>>Đang giao</option>
+                                            <option value="Hoàn thành" <?php if ($invoice['Status'] == 'Hoàn thành') echo 'selected'; ?>>Hoàn thành</option>
                                         </select>
                                     </form>
                                 </td>
@@ -310,7 +341,28 @@ require_once('../../Controller/admincontroller/invoiceController.php');
     </div>
     <script>
         document.querySelectorAll('.status-select').forEach(function(select) {
+            // Lưu trạng thái ban đầu
+            const originalStatus = select.value;
+
             select.addEventListener('change', function() {
+                const statusOrder = ['Đang xử lý', 'Đã xác nhận', 'Đang đóng hàng', 'Đang giao', 'Hoàn thành'];
+                const currentIndex = statusOrder.indexOf(originalStatus);
+                const newIndex = statusOrder.indexOf(this.value);
+
+                // Kiểm tra nếu cố gắng quay ngược trạng thái
+                if (newIndex < currentIndex) {
+                    alert('Không thể quay ngược trạng thái đơn hàng!');
+                    this.value = originalStatus; // Reset về trạng thái cũ
+                    return;
+                }
+
+                // Kiểm tra nếu bỏ qua trạng thái
+                if (newIndex - currentIndex > 1) {
+                    alert('Vui lòng cập nhật trạng thái theo thứ tự!');
+                    this.value = originalStatus; // Reset về trạng thái cũ
+                    return;
+                }
+
                 var form = this.closest('.status-form');
                 var id = form.getAttribute('data-id');
                 var status = this.value;
@@ -325,14 +377,36 @@ require_once('../../Controller/admincontroller/invoiceController.php');
                     .then(response => response.text())
                     .then(data => {
                         if (data.trim() === 'success') {
-
                             window.location.reload();
                         } else {
                             alert('Cập nhật trạng thái thất bại!');
+                            this.value = originalStatus; // Reset về trạng thái cũ nếu cập nhật thất bại
                         }
+                    })
+                    .catch(error => {
+                        alert('Có lỗi xảy ra khi cập nhật trạng thái!');
+                        this.value = originalStatus; // Reset về trạng thái cũ nếu có lỗi
                     });
             });
         });
+
+        // Dữ liệu quận/huyện theo tỉnh/thành từ PHP sang JS
+        const districtsByProvince = <?php echo json_encode($districtsByProvince); ?>;
+        const provinceSelect = document.getElementById('province-select');
+        const districtSelect = document.getElementById('district-select');
+
+        function fillDistricts() {
+            const province = provinceSelect.value;
+            districtSelect.innerHTML = '<option value="">Tất cả quận/huyện</option>';
+            if (province && districtsByProvince[province]) {
+                districtsByProvince[province].forEach(function(d) {
+                    const selected = (d === '<?php echo isset($_GET['district']) ? addslashes($_GET['district']) : ''; ?>') ? 'selected' : '';
+                    districtSelect.innerHTML += `<option value="${d}" ${selected}>${d}</option>`;
+                });
+            }
+        }
+        provinceSelect.addEventListener('change', fillDistricts);
+        window.addEventListener('DOMContentLoaded', fillDistricts);
     </script>
 </body>
 
