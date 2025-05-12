@@ -11,6 +11,7 @@ if (!isset($_SESSION['id_role']) || $_SESSION['id_role'] == 3) {
 
 
 $model = new AdminModel($conn);
+$check = new AdminModel($conn);
 // Xử lý xóa
 // Xử lý xóa người dùng
 if (isset($_GET['delete'])) {

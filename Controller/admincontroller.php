@@ -9,7 +9,7 @@ if (!isset($_SESSION['id_role']) || $_SESSION['id_role'] == 3) {
 }
 
 $model = new AdminModel($conn);
-
+$check = new AdminModel($conn);
 $customers = $model->getCustomerCount();
 $orders = $model->getOrderCount();
 // Xử lý xóa
