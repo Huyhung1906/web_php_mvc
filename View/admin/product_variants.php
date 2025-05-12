@@ -74,6 +74,41 @@ if (isset($_GET['success'])) {
         .action-buttons .btn {
             margin: 0 2px;
         }
+        .table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .table th,
+        .table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .table th {
+            background: #1a1f37;
+            color: white;
+            font-weight: bold;
+        }
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .table td, .table th {
+            vertical-align: middle !important;
+            font-size: 15px;
+        }
+        .table th:first-child, .table td:first-child {
+            border-top-left-radius: 5px;
+        }
+        .table th:last-child, .table td:last-child {
+            border-top-right-radius: 5px;
+        }
     </style>
 </head>
 
@@ -135,7 +170,7 @@ if (isset($_GET['success'])) {
 
             <!-- Bảng biến thể -->
             <div class="card">
-                <div class="card-body">
+                
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -177,7 +212,7 @@ if (isset($_GET['success'])) {
                             </tbody>
                         </table>
                     </div>
-                </div>
+                
             </div>
         </div>
     </div>

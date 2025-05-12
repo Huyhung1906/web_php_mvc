@@ -6,6 +6,8 @@
     <a href="promotions.php" class="<?php echo ($activePage == 'promotions') ? 'active' : ''; ?>" title="Quản lý khuyến mãi"><i class="fas fa-gift"></i></a>
     <a href="invoice.php" class="<?php echo ($activePage == 'invoice') ? 'active' : ''; ?>"><i class="fas fa-file-invoice"></i></a>
     <a href="role.php" class="<?php echo ($activePage == 'role') ? 'active' : ''; ?>"><i class="fa fa-ravelry"></i></a>
+    <a href="/web_php_mvc/View/admin/warranty.php" class="sidebar-link"> <i class="fas fa-tools"></i></a></a>
+       
 
     <a href="../admin/login.php" class="logout-link"><i class="fas fa-sign-out-alt"></i></a>
 </div>

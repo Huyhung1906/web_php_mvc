@@ -104,6 +104,42 @@ try {
         .action-buttons .btn {
             margin: 0 2px;
         }
+
+        .table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .table th,
+        .table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .table th {
+            background: #1a1f37;
+            color: white;
+            font-weight: bold;
+        }
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .table td, .table th {
+            vertical-align: middle !important;
+            font-size: 15px;
+        }
+        .table th:first-child, .table td:first-child {
+            border-top-left-radius: 5px;
+        }
+        .table th:last-child, .table td:last-child {
+            border-top-right-radius: 5px;
+        }
     </style>
 </head>
 
@@ -126,8 +162,7 @@ try {
             </div>
 
             <!-- Bộ lọc -->
-            <div class="card mb-4">
-                <div class="card-body">
+            <div class="card mb-4">              
                     <form id="filterForm" class="row g-3">
                         <div class="col-md-3">
                             <label class="form-label">Danh mục</label>
@@ -174,7 +209,6 @@ try {
                             <button type="reset" class="btn btn-secondary">Đặt lại</button>
                         </div>
                     </form>
-                </div>
             </div>
 
             <!-- Bảng sản phẩm -->
