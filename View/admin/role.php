@@ -230,7 +230,7 @@ $assignedPermissions = isset($assignedPermissions) && is_array($assignedPermissi
                                 <input type="text" value="<?= htmlspecialchars($role['name_role']) ?>" readonly style="width:120px">
                                 <input type="text" value="<?= htmlspecialchars($role['description']) ?>" readonly>
                                 <!-- Nút Chức năng (ID chức năng giả sử là 6) -->
-                                <?php if (isset($check) && $check->canPerformAction($_SESSION['id_role'], 21)) { ?>
+                                <?php if (isset($check) && $check->canPerformAction($_SESSION['id_role'], 22)) { ?>
                                     <a href="role.php?id=<?= $role['id_role'] ?>">
                                         <button type="button">Chức năng</button>
                                     </a>
@@ -302,9 +302,7 @@ $assignedPermissions = isset($assignedPermissions) && is_array($assignedPermissi
 
                         <br>
                         <?php if (isset($check) && $check->canPerformAction($_SESSION['id_role'], 21)) { ?>
-                                    <a href="?delete=<?= $role['id_role'] ?>" onclick="return confirm('Bạn có chắc chắn muốn xóa role này?')">
                                         <button type="submit" name="save_permissions">Lưu</button>
-                                    </a>
                                 <?php } else { ?>
                                     <button type="button" class="no-permission-link" disabled style="opacity: 0.6; cursor: not-allowed;">Lưu</button>
                                 <?php } ?>
