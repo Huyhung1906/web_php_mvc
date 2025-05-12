@@ -4,7 +4,7 @@ include '../../config/config.php';
 include '../../model/adminmodel.php';
 
 if (!isset($_SESSION['id_role']) || $_SESSION['id_role'] == 3) {
-    header("Location: ../auth/login.php");
+    header("Location: ../admin/login.php");
     exit();
 }
 

@@ -8,5 +8,5 @@
     <a href="role.php?id=1" class="<?php echo ($activePage == 'role') ? 'active' : ''; ?>"><i class="fa fa-ravelry"></i></a>
     <a href="statistics.php" class="<?php echo ($activePage == 'statistics') ? 'active' : ''; ?>"><i class="fas fa-chart-bar"></i></a>
 
-    <a href="../admin/login.php" class="logout-link"><i class="fas fa-sign-out-alt"></i></a>
+    <a href="../admin/logout.php" class="logout-link"><i class="fas fa-sign-out-alt"></i></a>
 </div>
