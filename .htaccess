@@ -8,16 +8,20 @@ RewriteRule ^cart$ index.php?controller=cart&action=viewCart [L]
 RewriteRule ^checkout$ index.php?controller=checkout&action=index [L]
 
 # Admin Product routes
-RewriteRule ^admin/products/get-products$ index.php?url=admin/products/get-products [L]
-RewriteRule ^admin/products/delete/([0-9]+)$ index.php?url=admin/products/delete/$1 [L]
+RewriteRule ^admin/products$ index.php [L]
+RewriteRule ^admin/products/get-products$ index.php [L]
+RewriteRule ^admin/products/add$ index.php [L]
+RewriteRule ^admin/products/edit/([0-9]+)$ index.php [L]
+RewriteRule ^admin/products/delete/([0-9]+)$ index.php [L]
+RewriteRule ^admin/products/delete-image/([0-9]+)$ index.php [L]
 
 # Admin Product Variant routes
-RewriteRule ^admin/product_variants/get-variants$ index.php?url=admin/product_variants/get-variants [L]
-RewriteRule ^admin/product_variants/add$           index.php?url=admin/product_variants/add [L]
-RewriteRule ^admin/product_variants/edit/([0-9]+)$ index.php?url=admin/product_variants/edit/$1 [L]
-RewriteRule ^admin/product_variants/delete/([0-9]+)$ index.php?url=admin/product_variants/delete/$1 [L]
+RewriteRule ^admin/product_variants/get-variants$ index.php [L]
+RewriteRule ^admin/product_variants/add$ index.php [L]
+RewriteRule ^admin/product_variants/edit/([0-9]+)$ index.php [L]
+RewriteRule ^admin/product_variants/delete/([0-9]+)$ index.php [L]
 
 # Fallback for other routes
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.+)$ index.php?url=$1 [QSA,L] 
+RewriteRule ^(.+)$ index.php [QSA,L] 

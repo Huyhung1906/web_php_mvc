@@ -123,18 +123,48 @@ class AdminProductModel {
 
     // Lấy danh sách thương hiệu
     public function getAllBrands() {
-        $sql = "SELECT * FROM brand";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            error_log('Getting all brands...');
+            $sql = "SELECT * FROM brand";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            error_log('Brands query result: ' . print_r($result, true));
+            
+            if ($stmt->rowCount() === 0) {
+                error_log('No brands found in database');
+                throw new Exception("Không tìm thấy dữ liệu thương hiệu trong database");
+            }
+            
+            return $result;
+        } catch (PDOException $e) {
+            error_log('Database error in getAllBrands: ' . $e->getMessage());
+            throw new Exception("Lỗi database khi lấy danh sách thương hiệu: " . $e->getMessage());
+        }
     }
 
     // Lấy danh sách danh mục
     public function getAllCategories() {
-        $sql = "SELECT * FROM category";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            error_log('Getting all categories...');
+            $sql = "SELECT * FROM category";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            error_log('Categories query result: ' . print_r($result, true));
+            
+            if ($stmt->rowCount() === 0) {
+                error_log('No categories found in database');
+                throw new Exception("Không tìm thấy dữ liệu danh mục trong database");
+            }
+            
+            return $result;
+        } catch (PDOException $e) {
+            error_log('Database error in getAllCategories: ' . $e->getMessage());
+            throw new Exception("Lỗi database khi lấy danh sách danh mục: " . $e->getMessage());
+        }
     }
 
     // Lấy danh sách dòng sản phẩm
@@ -167,6 +197,7 @@ class AdminProductModel {
         $stmt->bindParam(':id', $imageId);
         return $stmt->execute();
     }
+
     public function canPerformAction($id_role, $permission_id) {
         $stmt = $this->conn->prepare("SELECT * FROM phanrole WHERE id_role = :id_role AND id_chitietrole = :permission_id");
         $stmt->bindParam(':id_role', $id_role);
@@ -174,6 +205,30 @@ class AdminProductModel {
         $stmt->execute();
     
         return $stmt->rowCount() > 0;
+    }
+
+    public function getAllSizes() {
+        try {
+            $sql = "SELECT * FROM size ORDER BY size_value";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error in getAllSizes: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function getAllColors() {
+        try {
+            $sql = "SELECT * FROM color ORDER BY color_name";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error in getAllColors: " . $e->getMessage());
+            return [];
+        }
     }
 }
 ?>
