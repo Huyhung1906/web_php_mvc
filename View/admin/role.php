@@ -301,7 +301,14 @@ $assignedPermissions = isset($assignedPermissions) && is_array($assignedPermissi
                         <?php endforeach; ?>
 
                         <br>
-                        <button type="submit" name="save_permissions">Lưu</button>
+                        <?php if (isset($check) && $check->canPerformAction($_SESSION['id_role'], 21)) { ?>
+                                    <a href="?delete=<?= $role['id_role'] ?>" onclick="return confirm('Bạn có chắc chắn muốn xóa role này?')">
+                                        <button type="submit" name="save_permissions">Lưu</button>
+                                    </a>
+                                <?php } else { ?>
+                                    <button type="button" class="no-permission-link" disabled style="opacity: 0.6; cursor: not-allowed;">Lưu</button>
+                                <?php } ?>
+
                     </div>
                 </form>
 
