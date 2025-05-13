@@ -3,9 +3,12 @@ try {
     // Load các file cần thiết
     require_once __DIR__ . '/../../config/config.php';
     require_once __DIR__ . '/../../Model/adminProductModel.php';
-
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     // Khởi tạo model và lấy dữ liệu
     $model = new AdminProductModel();
+    $check = new AdminProductModel();
     $brands = $model->getAllBrands();
     $categories = $model->getAllCategories();
 
@@ -44,7 +47,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý sản phẩm</title>
     <!-- Debug: Hiển thị dữ liệu -->
-   
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -71,7 +74,7 @@ try {
         .sidebar {
             background-color: #1a1f37;
             color: white;
- 
+
             text-align: center;
             position: fixed;
             top: 0;
@@ -85,7 +88,8 @@ try {
             text-decoration: none;
         }
 
-        .sidebar a:hover, .sidebar a.active {
+        .sidebar a:hover,
+        .sidebar a.active {
             color: white;
             background-color: #2c3149;
         }
@@ -113,32 +117,56 @@ try {
             border-radius: 5px;
             overflow: hidden;
         }
+
         .table th,
         .table td {
             padding: 12px 15px;
             border: 1px solid #ddd;
             text-align: left;
         }
+
         .table th {
             background: #1a1f37;
             color: white;
             font-weight: bold;
         }
+
         .table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
         .table tr:hover {
             background-color: #f5f5f5;
         }
-        .table td, .table th {
+
+        .table td,
+        .table th {
             vertical-align: middle !important;
             font-size: 15px;
         }
-        .table th:first-child, .table td:first-child {
+
+        .table th:first-child,
+        .table td:first-child {
             border-top-left-radius: 5px;
         }
-        .table th:last-child, .table td:last-child {
+
+        .table th:last-child,
+        .table td:last-child {
             border-top-right-radius: 5px;
+        }
+
+        .no-permission i {
+            color: gray;
+            /* Màu xám cho biểu tượng */
+            pointer-events: none;
+            /* Ngăn không cho người dùng click vào */
+        }
+
+        .no-permission-link {
+            color: gray !important;
+            /* Màu xám cho liên kết */
+            pointer-events: none;
+            /* Ngăn không cho người dùng click vào */
         }
     </style>
 </head>
@@ -156,59 +184,63 @@ try {
         <div class="main-content">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Quản lý sản phẩm</h2>
-                <a href="/web_php_mvc/admin/products/add" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Thêm sản phẩm mới
-                </a>
+                <?php if ($check->canPerformAction($_SESSION['id_role'], 8)) { ?>
+                    <a href="/web_php_mvc/admin/products/add" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Thêm sản phẩm mới
+                    </a> <?php } else { ?>
+                    <a href="javascript:void(0);" class="no-permission-link">Thêm sản phẩm mới</a> <!-- Liên kết màu xám khi không có quyền -->
+                <?php } ?>
+
             </div>
 
             <!-- Bộ lọc -->
-            <div class="card mb-4">              
-                    <form id="filterForm" class="row g-3">
-                        <div class="col-md-3">
-                            <label class="form-label">Danh mục</label>
-                            <select class="form-select" name="category" id="category">
-                                <option value="">Tất cả</option>
-                                <?php if (isset($categories) && !empty($categories)): ?>
-                                    <?php foreach ($categories as $category): ?>
-                                        <option value="<?php echo $category['id_category']; ?>">
-                                            <?php echo $category['name_category']; ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Thương hiệu</label>
-                            <select class="form-select" name="brand" id="brand">
-                                <option value="">Tất cả</option>
-                                <?php if (isset($brands) && !empty($brands)): ?>
-                                    <?php foreach ($brands as $brand): ?>
-                                        <option value="<?php echo $brand['id_brand']; ?>">
-                                            <?php echo $brand['name_brand']; ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Trạng thái</label>
-                            <select class="form-select" name="status" id="status">
-                                <option value="">Tất cả</option>
-                                <option value="Còn hàng">Còn hàng</option>
-                                <option value="Hết hàng">Hết hàng</option>
-                                <option value="Hidden">Đã ẩn</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Tìm kiếm</label>
-                            <input type="text" class="form-control" name="search" id="search"
-                                placeholder="Nhập tên sản phẩm...">
-                        </div>
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary">Lọc</button>
-                            <button type="reset" class="btn btn-secondary">Đặt lại</button>
-                        </div>
-                    </form>
+            <div class="card mb-4">
+                <form id="filterForm" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Danh mục</label>
+                        <select class="form-select" name="category" id="category">
+                            <option value="">Tất cả</option>
+                            <?php if (isset($categories) && !empty($categories)): ?>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?php echo $category['id_category']; ?>">
+                                        <?php echo $category['name_category']; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Thương hiệu</label>
+                        <select class="form-select" name="brand" id="brand">
+                            <option value="">Tất cả</option>
+                            <?php if (isset($brands) && !empty($brands)): ?>
+                                <?php foreach ($brands as $brand): ?>
+                                    <option value="<?php echo $brand['id_brand']; ?>">
+                                        <?php echo $brand['name_brand']; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Trạng thái</label>
+                        <select class="form-select" name="status" id="status">
+                            <option value="">Tất cả</option>
+                            <option value="Còn hàng">Còn hàng</option>
+                            <option value="Hết hàng">Hết hàng</option>
+                            <option value="Hidden">Đã ẩn</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Tìm kiếm</label>
+                        <input type="text" class="form-control" name="search" id="search"
+                            placeholder="Nhập tên sản phẩm...">
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Lọc</button>
+                        <button type="reset" class="btn btn-secondary">Đặt lại</button>
+                    </div>
+                </form>
             </div>
 
             <!-- Bảng sản phẩm -->
@@ -314,14 +346,25 @@ try {
                                 </span>
                             </td>
                             <td class="action-buttons">
+                            <?php if ($check->canPerformAction($_SESSION['id_role'], 9)) { ?>
                                 <a href="/web_php_mvc/admin/products/edit/${product.id_product}" 
-                                   class="btn btn-sm btn-primary">
-                                    <i class="fas fa-edit"></i>
-                                </a>
+                                            class="btn btn-sm btn-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                <?php } else { ?>
+                                <a href="javascript:void(0);" class="no-permission-link"><i class="fas fa-edit"></i></a> <!-- Liên kết màu xám khi không có quyền -->
+                            <?php } ?>
+                                <?php if ($check->canPerformAction($_SESSION['id_role'], 11)) { ?>
                                 <button type="button" class="btn btn-sm btn-danger" 
                                         onclick="confirmDelete(${product.id_product})">
                                     <i class="fas fa-trash"></i>
                                 </button>
+                                <?php } else { ?>
+                                <a href="javascript:void(0);" class="no-permission-link"><button type="button" class="btn btn-sm btn-danger" 
+                                        onclick="confirmDelete(${product.id_product})">
+                                </button></i></a> <!-- Liên kết màu xám khi không có quyền -->
+                            <?php } ?>
+                                
                             </td>
                         </tr>
                     `;

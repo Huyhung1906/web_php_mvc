@@ -3,10 +3,16 @@ require_once 'Model/adminProductModel.php';
 
 class AdminProduct {
     private $model;
-
     public function __construct() {
         $this->model = new AdminProductModel();
     }
+    public function checkAccess()
+        {
+            if (!isset($_SESSION['id_role']) || $_SESSION['id_role'] == 3) {
+                header("Location: ../auth/login.php");
+                exit();
+            }
+        }
 
     // Hiển thị trang quản lý sản phẩm
     public function index() {

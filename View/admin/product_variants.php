@@ -1,5 +1,9 @@
 <?php
 require_once('../../Controller/admincontroller/productVariant.php');
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$check = new ProductVariantModel();
 
 // Hiển thị alert thành công
 if (isset($_GET['success'])) {
@@ -74,6 +78,7 @@ if (isset($_GET['success'])) {
         .action-buttons .btn {
             margin: 0 2px;
         }
+
         .table {
             width: 100%;
             background: white;
@@ -82,32 +87,56 @@ if (isset($_GET['success'])) {
             border-radius: 5px;
             overflow: hidden;
         }
+
         .table th,
         .table td {
             padding: 12px 15px;
             border: 1px solid #ddd;
             text-align: left;
         }
+
         .table th {
             background: #1a1f37;
             color: white;
             font-weight: bold;
         }
+
         .table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
         .table tr:hover {
             background-color: #f5f5f5;
         }
-        .table td, .table th {
+
+        .table td,
+        .table th {
             vertical-align: middle !important;
             font-size: 15px;
         }
-        .table th:first-child, .table td:first-child {
+
+        .table th:first-child,
+        .table td:first-child {
             border-top-left-radius: 5px;
         }
-        .table th:last-child, .table td:last-child {
+
+        .table th:last-child,
+        .table td:last-child {
             border-top-right-radius: 5px;
+        }
+
+        .no-permission i {
+            color: gray;
+            /* Màu xám cho biểu tượng */
+            pointer-events: none;
+            /* Ngăn không cho người dùng click vào */
+        }
+
+        .no-permission-link {
+            color: gray !important;
+            /* Màu xám cho liên kết */
+            pointer-events: none;
+            /* Ngăn không cho người dùng click vào */
         }
     </style>
 </head>
@@ -121,7 +150,12 @@ if (isset($_GET['success'])) {
         <div class="main-content">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Quản lý biến thể sản phẩm</h2>
-                <a href="add_productVariant.php" class="btn btn-primary mb-3">Thêm biến thể mới</a>
+                <?php if ($check->canPerformAction($_SESSION['id_role'], 8)) { ?>
+                    <a href="/web_php_mvc/admin/products/add" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Thêm sản phẩm mới
+                    </a> <?php } else { ?>
+                    <a href="javascript:void(0);" class="no-permission-link">Thêm sản phẩm mới</a> <!-- Liên kết màu xám khi không có quyền -->
+                    <?php } ?>s
             </div>
 
             <!-- Bộ lọc -->
@@ -131,9 +165,10 @@ if (isset($_GET['success'])) {
                         <div class="col-md-4">
                             <label class="form-label">Tên sản phẩm</label>
                             <input type="text" class="form-control" name="search" value="<?= isset(
-                            $search) ? htmlspecialchars($search) : '' ?>" placeholder="Nhập tên sản phẩm...">
+                                                                                                $search
+                                                                                            ) ? htmlspecialchars($search) : '' ?>" placeholder="Nhập tên sản phẩm...">
                         </div>
-                       
+
                         <div class="col-md-3">
                             <label class="form-label">Kích cỡ</label>
                             <select class="form-select" id="size" name="size">
@@ -170,49 +205,59 @@ if (isset($_GET['success'])) {
 
             <!-- Bảng biến thể -->
             <div class="card">
-                
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Sản phẩm</th>
-                                    <th>Kích cỡ</th>
-                                    <th>Màu sắc</th>
-                                    <th>Số lượng</th>
-                                    <th>Hết hạn</th>
-                                    <th>Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (!empty($variants)): ?>
-                                    <?php foreach ($variants as $v): ?>
-                                        <tr>
-                                            <td><?= $v['id_variant'] ?></td>
-                                            <td><?= htmlspecialchars($v['name_product']) ?></td>
-                                            <td><?= htmlspecialchars($v['size_value']) ?></td>
-                                            <td><?= htmlspecialchars($v['color_name']) ?></td>
-                                            <td><?= $v['quantity'] ?></td>
-                                            <td><?= $v['expired_date'] ?></td>
-                                            <td class="action-buttons">
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Sản phẩm</th>
+                                <th>Kích cỡ</th>
+                                <th>Màu sắc</th>
+                                <th>Số lượng</th>
+                                <th>Hết hạn</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($variants)): ?>
+                                <?php foreach ($variants as $v): ?>
+                                    <tr>
+                                        <td><?= $v['id_variant'] ?></td>
+                                        <td><?= htmlspecialchars($v['name_product']) ?></td>
+                                        <td><?= htmlspecialchars($v['size_value']) ?></td>
+                                        <td><?= htmlspecialchars($v['color_name']) ?></td>
+                                        <td><?= $v['quantity'] ?></td>
+                                        <td><?= $v['expired_date'] ?></td>
+                                        <td class="action-buttons">
+                                            <?php if ($check->canPerformAction($_SESSION['id_role'], 9)) { ?>
                                                 <a href="edit_productVariant.php?id=<?= $v['id_variant'] ?>" class="btn btn-sm btn-primary">
                                                     <i class="fas fa-edit"></i> Sửa
                                                 </a>
+                                            <?php } else { ?>
+                                                <a href="javascript:void(0);" class="no-permission-link"><i class="fas fa-edit"></i></a> <!-- Liên kết màu xám khi không có quyền -->
+                                            <?php } ?>
+                                            <?php if ($check->canPerformAction($_SESSION['id_role'], 11)) { ?>
                                                 <a href="?delete=<?= $v['id_variant'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa biến thể này?');">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <tr>
-                                        <td colspan="7" class="text-center">Không tìm thấy biến thể nào</td>
+                                            <?php } else { ?>
+                                                <a href="javascript:void(0);" class="no-permission-link"><button type="button" class="btn btn-sm btn-danger">
+                                                    </button></i></a> <!-- Liên kết màu xám khi không có quyền -->
+                                            <?php } ?>
+
+                                        </td>
                                     </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="7" class="text-center">Không tìm thấy biến thể nào</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
     </div>
