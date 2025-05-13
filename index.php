@@ -17,10 +17,10 @@ require_once 'Controller/CartController.php';
 
 // Get the requested URL
 $url = isset($_GET['url']) ? $_GET['url'] : '';
-// Lấy URL từ request
-$url = $_SERVER['REQUEST_URI'];
-$url = str_replace('/web_php_mvc', '', $url);
-$url = trim($url, '/');
+// // Lấy URL từ request
+// $url = $_SERVER['REQUEST_URI'];
+// $url = str_replace('/web_php_mvc', '', $url);
+// $url = trim($url, '/');
 
 // Debug: Log processed URL
 error_log('Processed URL: ' . $url);
