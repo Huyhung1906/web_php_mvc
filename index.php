@@ -3,6 +3,9 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Debug: Log request URL
+error_log('Request URL: ' . $_SERVER['REQUEST_URI']);
+
 // Define the application root path
 define('ROOT_PATH', __DIR__);
 
@@ -14,6 +17,13 @@ require_once 'Controller/CartController.php';
 
 // Get the requested URL
 $url = isset($_GET['url']) ? $_GET['url'] : '';
+// Lấy URL từ request
+$url = $_SERVER['REQUEST_URI'];
+$url = str_replace('/web_php_mvc', '', $url);
+$url = trim($url, '/');
+
+// Debug: Log processed URL
+error_log('Processed URL: ' . $url);
 
 // Check controller parameter
 $controller = isset($_GET['controller']) ? $_GET['controller'] : '';
@@ -22,6 +32,9 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 // Handle admin routes
 if (strpos($url, 'admin/') === 0) {
     $adminPath = substr($url, 6); // Remove 'admin/' from the URL
+    
+    // Debug: Log admin path
+    error_log('Admin path: ' . $adminPath);
     
     if ($adminPath === 'products') {
         require_once 'Controller/admincontroller/adminProduct.php';
@@ -55,35 +68,7 @@ if (strpos($url, 'admin/') === 0) {
         require_once 'Controller/admincontroller/adminProduct.php';
         $adminProduct = new AdminProduct();
         $adminProduct->deleteImage($matches[1]);
-    } elseif ($adminPath === 'product_variants') {
-        require_once 'Controller/admincontroller/productvariant.php';
-        $ctrl = new ProductVariant();
-        $ctrl->index();
-    } elseif (preg_match('/^product_variants\/get-variants$/', $adminPath)) {
-        require_once 'Controller/admincontroller/productvariant.php';
-        $ctrl = new ProductVariant();
-        $ctrl->getVariants();
-    } elseif (preg_match('/^product_variants\/add$/', $adminPath)) {
-        require_once 'Controller/admincontroller/productvariant.php';
-        $ctrl = new ProductVariant();
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $ctrl->addVariant();
-        } else {
-            $ctrl->showAddForm();
-        }
-    } elseif (preg_match('/^product_variants\/edit\/(\d+)$/', $adminPath, $matches)) {
-        require_once 'Controller/admincontroller/productvariant.php';
-        $ctrl = new ProductVariant();
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $ctrl->updateVariant($matches[1]);
-        } else {
-            $ctrl->showEditForm($matches[1]);
-        }
-    } elseif (preg_match('/^product_variants\/delete\/(\d+)$/', $adminPath, $matches)) {
-        require_once 'Controller/admincontroller/productvariant.php';
-        $ctrl = new ProductVariant();
-        $ctrl->deleteVariant($matches[1]);
-    }
+    } 
     exit;
 }
 // Handle different controllers

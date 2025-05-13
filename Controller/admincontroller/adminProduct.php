@@ -10,16 +10,45 @@ class AdminProduct {
 
     // Hiển thị trang quản lý sản phẩm
     public function index() {
-        $brands = $this->model->getAllBrands();
-        $categories = $this->model->getAllCategories();
-        // Khởi tạo giá trị filter mặc định từ GET (nếu có)
-        $initFilters = [
-            'category' => $_GET['category'] ?? '',
-            'brand'    => $_GET['brand'] ?? '',
-            'status'   => $_GET['status'] ?? '',
-            'search'   => $_GET['search'] ?? ''
-        ];
-        require_once ROOT_PATH . '/View/admin/products.php';
+        try {
+            error_log('Starting AdminProduct::index()');
+            
+            // Lấy dữ liệu từ model
+            error_log('Getting brands...');
+            $brands = $this->model->getAllBrands();
+            error_log('Getting categories...');
+            $categories = $this->model->getAllCategories();
+            
+            // Debug: Kiểm tra dữ liệu
+            error_log('Brands data: ' . print_r($brands, true));
+            error_log('Categories data: ' . print_r($categories, true));
+            
+            // Khởi tạo giá trị filter mặc định từ GET (nếu có)
+            $initFilters = [
+                'category' => $_GET['category'] ?? '',
+                'brand'    => $_GET['brand'] ?? '',
+                'status'   => $_GET['status'] ?? '',
+                'search'   => $_GET['search'] ?? ''
+            ];
+
+            // Truyền biến trực tiếp vào view
+         //   $brands = $brands;
+        //    $categories = $categories;
+        //    $initFilters = $initFilters;
+            
+            error_log('Variables being passed to view:');
+            error_log('$brands: ' . print_r($brands, true));
+            error_log('$categories: ' . print_r($categories, true));
+            error_log('$initFilters: ' . print_r($initFilters, true));
+            
+            // Load view với dữ liệu
+            require_once ROOT_PATH . '/View/admin/products.php';
+            
+            error_log('View loaded successfully');
+        } catch (Exception $e) {
+            error_log('Error in AdminProduct::index(): ' . $e->getMessage());
+            echo '<div class="alert alert-danger">Lỗi: ' . $e->getMessage() . '</div>';
+        }
     }
 
     // Xử lý AJAX request lấy danh sách sản phẩm

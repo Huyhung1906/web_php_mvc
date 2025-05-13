@@ -1,3 +1,41 @@
+<?php
+try {
+    // Load các file cần thiết
+    require_once __DIR__ . '/../../config/config.php';
+    require_once __DIR__ . '/../../Model/adminProductModel.php';
+
+    // Khởi tạo model và lấy dữ liệu
+    $model = new AdminProductModel();
+    $brands = $model->getAllBrands();
+    $categories = $model->getAllCategories();
+
+    // Debug: Kiểm tra biến
+    error_log('View: Checking variables');
+    error_log('View: $brands: ' . (isset($brands) ? 'set' : 'NOT set'));
+    error_log('View: $categories: ' . (isset($categories) ? 'set' : 'NOT set'));
+
+    // Khởi tạo giá trị filter mặc định
+    $initFilters = [
+        'category' => $_GET['category'] ?? '',
+        'brand'    => $_GET['brand'] ?? '',
+        'status'   => $_GET['status'] ?? '',
+        'search'   => $_GET['search'] ?? ''
+    ];
+} catch (Exception $e) {
+    error_log('Error in products.php: ' . $e->getMessage());
+    echo '<div class="alert alert-danger">Lỗi: ' . $e->getMessage() . '</div>';
+    // Khởi tạo biến rỗng để tránh lỗi undefined
+    $brands = [];
+    $categories = [];
+    $initFilters = [
+        'category' => '',
+        'brand'    => '',
+        'status'   => '',
+        'search'   => ''
+    ];
+}
+?>
+
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -5,6 +43,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý sản phẩm</title>
+    <!-- Debug: Hiển thị dữ liệu -->
+   
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -64,6 +104,42 @@
         .action-buttons .btn {
             margin: 0 2px;
         }
+
+        .table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .table th,
+        .table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .table th {
+            background: #1a1f37;
+            color: white;
+            font-weight: bold;
+        }
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .table td, .table th {
+            vertical-align: middle !important;
+            font-size: 15px;
+        }
+        .table th:first-child, .table td:first-child {
+            border-top-left-radius: 5px;
+        }
+        .table th:last-child, .table td:last-child {
+            border-top-right-radius: 5px;
+        }
     </style>
 </head>
 
@@ -86,29 +162,32 @@
             </div>
 
             <!-- Bộ lọc -->
-            <div class="card mb-4">
-                <div class="card-body">
+            <div class="card mb-4">              
                     <form id="filterForm" class="row g-3">
                         <div class="col-md-3">
                             <label class="form-label">Danh mục</label>
                             <select class="form-select" name="category" id="category">
                                 <option value="">Tất cả</option>
-                                <?php foreach ($categories as $category): ?>
-                                    <option value="<?php echo $category['id_category']; ?>">
-                                        <?php echo $category['name_category']; ?>
-                                    </option>
-                                <?php endforeach; ?>
+                                <?php if (isset($categories) && !empty($categories)): ?>
+                                    <?php foreach ($categories as $category): ?>
+                                        <option value="<?php echo $category['id_category']; ?>">
+                                            <?php echo $category['name_category']; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </select>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Thương hiệu</label>
                             <select class="form-select" name="brand" id="brand">
                                 <option value="">Tất cả</option>
-                                <?php foreach ($brands as $brand): ?>
-                                    <option value="<?php echo $brand['id_brand']; ?>">
-                                        <?php echo $brand['name_brand']; ?>
-                                    </option>
-                                <?php endforeach; ?>
+                                <?php if (isset($brands) && !empty($brands)): ?>
+                                    <?php foreach ($brands as $brand): ?>
+                                        <option value="<?php echo $brand['id_brand']; ?>">
+                                            <?php echo $brand['name_brand']; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -130,7 +209,6 @@
                             <button type="reset" class="btn btn-secondary">Đặt lại</button>
                         </div>
                     </form>
-                </div>
             </div>
 
             <!-- Bảng sản phẩm -->

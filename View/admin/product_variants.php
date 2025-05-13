@@ -1,6 +1,14 @@
 <?php
-// Highlight current page
-$activePage = 'variants';
+require_once('../../Controller/admincontroller/productVariant.php');
+
+// Hiển thị alert thành công
+if (isset($_GET['success'])) {
+    if ($_GET['success'] == 1) {
+        echo '<script>alert("Thêm biến thể thành công!");</script>';
+    } elseif ($_GET['success'] == 2) {
+        echo '<script>alert("Cập nhật biến thể thành công!");</script>';
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -33,37 +41,73 @@ $activePage = 'variants';
         }
 
         .sidebar {
-            width: 50px; /* Đặt chiều rộng cho sidebar */
-            background-color: #1a1f37; /* Màu nền */
-            color: white; /* Màu chữ */
-            padding: 20px 0; /* Padding cho sidebar */
-            position: fixed; /* Giữ sidebar cố định */
+            width: 50px;
+            background-color: #1a1f37;
+            color: white;
+            padding: 20px 0;
+            position: fixed;
             top: 0;
             left: 0;
-            height: 100%; /* Chiều cao đầy đủ */
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Đổ bóng tùy chọn */
+            height: 100%;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar a {
-            color: #a3a6b4; /* Màu chữ cho liên kết */
-            display: block; /* Hiển thị liên kết dưới dạng khối */
-            padding: 15px; /* Padding cho liên kết */
-            text-decoration: none; /* Bỏ gạch chân */
+            color: #a3a6b4;
+            display: block;
+            padding: 15px;
+            text-decoration: none;
         }
 
-        .sidebar a:hover, .sidebar a.active {
-            color: white; /* Màu chữ khi hover hoặc active */
-            background-color: #2c3149; /* Màu nền khi hover/active */
+        .sidebar a:hover,
+        .sidebar a.active {
+            color: white;
+            background-color: #2c3149;
         }
 
         .main-content {
-            margin-left: auto; /* Điều chỉnh margin để phù hợp với chiều rộng của sidebar */
-            flex-grow: 1; /* Cho phép main-content mở rộng */
-            padding: 20px; /* Padding cho main-content */
+            margin-left: auto;
+            flex-grow: 1;
+            padding: 20px;
         }
 
         .action-buttons .btn {
             margin: 0 2px;
+        }
+        .table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .table th,
+        .table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .table th {
+            background: #1a1f37;
+            color: white;
+            font-weight: bold;
+        }
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .table td, .table th {
+            vertical-align: middle !important;
+            font-size: 15px;
+        }
+        .table th:first-child, .table td:first-child {
+            border-top-left-radius: 5px;
+        }
+        .table th:last-child, .table td:last-child {
+            border-top-right-radius: 5px;
         }
     </style>
 </head>
@@ -77,45 +121,48 @@ $activePage = 'variants';
         <div class="main-content">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Quản lý biến thể sản phẩm</h2>
-                <a href="/web_php_mvc/admin/product_variants/add" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Thêm biến thể mới
-                </a>
+                <a href="add_productVariant.php" class="btn btn-primary mb-3">Thêm biến thể mới</a>
             </div>
 
             <!-- Bộ lọc -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <form id="filterForm" class="row g-3">
+                    <form id="filterForm" class="row g-3" method="get" action="">
                         <div class="col-md-4">
-                            <label class="form-label">Sản phẩm</label>
-                            <select class="form-select" id="product" name="product">
-                                <option value="">Tất cả</option>
-                                <?php foreach ($products as $prd): ?>
-                                    <option value="<?php echo $prd['id_product']; ?>"><?php echo htmlspecialchars($prd['name_product']); ?></option>
-                                <?php endforeach; ?>
-                            </select>
+                            <label class="form-label">Tên sản phẩm</label>
+                            <input type="text" class="form-control" name="search" value="<?= isset(
+                            $search) ? htmlspecialchars($search) : '' ?>" placeholder="Nhập tên sản phẩm...">
                         </div>
+                       
                         <div class="col-md-3">
                             <label class="form-label">Kích cỡ</label>
                             <select class="form-select" id="size" name="size">
                                 <option value="">Tất cả</option>
-                                <?php foreach ($sizes as $sz): ?>
-                                    <option value="<?php echo $sz['id_size']; ?>"><?php echo htmlspecialchars($sz['size_value']); ?></option>
-                                <?php endforeach; ?>
+                                <?php if (isset($sizes) && !empty($sizes)): ?>
+                                    <?php foreach ($sizes as $sz): ?>
+                                        <option value="<?php echo $sz['id_size']; ?>" <?php if ($filter_size == $sz['id_size']) echo 'selected'; ?>>
+                                            <?php echo htmlspecialchars($sz['size_value']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </select>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Màu sắc</label>
                             <select class="form-select" id="color" name="color">
                                 <option value="">Tất cả</option>
-                                <?php foreach ($colors as $col): ?>
-                                    <option value="<?php echo $col['id_color']; ?>"><?php echo htmlspecialchars($col['color_name']); ?></option>
-                                <?php endforeach; ?>
+                                <?php if (isset($colors) && !empty($colors)): ?>
+                                    <?php foreach ($colors as $col): ?>
+                                        <option value="<?php echo $col['id_color']; ?>" <?php if ($filter_color == $col['id_color']) echo 'selected'; ?>>
+                                            <?php echo htmlspecialchars($col['color_name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </select>
                         </div>
                         <div class="col-md-2 d-flex align-items-end">
                             <button type="submit" class="btn btn-primary me-2">Lọc</button>
-                            <button type="reset" class="btn btn-secondary">Đặt lại</button>
+                            <a href="?" class="btn btn-secondary">Đặt lại</a>
                         </div>
                     </form>
                 </div>
@@ -123,7 +170,7 @@ $activePage = 'variants';
 
             <!-- Bảng biến thể -->
             <div class="card">
-                <div class="card-body">
+                
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -137,12 +184,35 @@ $activePage = 'variants';
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
-                            <tbody id="variantTableBody">
-                                <!-- Dữ liệu sẽ được load bằng AJAX -->
+                            <tbody>
+                                <?php if (!empty($variants)): ?>
+                                    <?php foreach ($variants as $v): ?>
+                                        <tr>
+                                            <td><?= $v['id_variant'] ?></td>
+                                            <td><?= htmlspecialchars($v['name_product']) ?></td>
+                                            <td><?= htmlspecialchars($v['size_value']) ?></td>
+                                            <td><?= htmlspecialchars($v['color_name']) ?></td>
+                                            <td><?= $v['quantity'] ?></td>
+                                            <td><?= $v['expired_date'] ?></td>
+                                            <td class="action-buttons">
+                                                <a href="edit_productVariant.php?id=<?= $v['id_variant'] ?>" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-edit"></i> Sửa
+                                                </a>
+                                                <a href="?delete=<?= $v['id_variant'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa biến thể này?');">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="7" class="text-center">Không tìm thấy biến thể nào</td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
-                </div>
+                
             </div>
         </div>
     </div>
@@ -168,82 +238,6 @@ $activePage = 'variants';
 
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        let variantIdToDelete = null;
-        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-
-        // Hàm load biến thể
-        function loadVariants(filters = {}) {
-            fetch('/web_php_mvc/index.php?url=admin/product_variants/get-variants', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(filters)
-            })
-            .then(res => res.ok ? res.json() : Promise.reject(res.statusText))
-            .then(data => {
-                const tbody = document.getElementById('variantTableBody');
-                tbody.innerHTML = '';
-                if (!data.length) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="text-center">Không tìm thấy biến thể nào</td></tr>`;
-                    return;
-                }
-                data.forEach(v => {
-                    const row = `
-                        <tr>
-                            <td>${v.id_variant}</td>
-                            <td>${v.name_product}</td>
-                            <td>${v.size_value}</td>
-                            <td>${v.color_name}</td>
-                            <td>${v.quantity}</td>
-                            <td>${v.expired_date}</td>
-                            <td class="action-buttons">
-                                <a href="/web_php_mvc/admin/product_variants/edit/${v.id_variant}" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete(${v.id_variant})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>`;
-                    tbody.innerHTML += row;
-                });
-            })
-            .catch(err => {
-                console.error(err);
-                document.getElementById('variantTableBody').innerHTML = `<tr><td colspan="7" class="text-center text-danger">Lỗi: ${err}</td></tr>`;
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => loadVariants());
-
-        document.getElementById('filterForm').addEventListener('submit', e => {
-            e.preventDefault();
-            const filters = {
-                product: document.getElementById('product').value,
-                size: document.getElementById('size').value,
-                color: document.getElementById('color').value
-            };
-            loadVariants(filters);
-        });
-
-        document.querySelector('button[type="reset"]').addEventListener('click', () => setTimeout(() => loadVariants(), 0));
-
-        function confirmDelete(id) {
-            variantIdToDelete = id;
-            deleteModal.show();
-        }
-
-        document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-            fetch('/web_php_mvc/index.php?url=admin/product_variants/delete/${variantIdToDelete}', { method: 'POST' })
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) loadVariants();
-                else alert('Xóa thất bại');
-            })
-            .catch(() => alert('Có lỗi xảy ra'));
-            deleteModal.hide();
-        });
-    </script>
 </body>
 
 </html>
