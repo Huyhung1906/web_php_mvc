@@ -155,18 +155,6 @@ if (!isset($cartItems)) {
 						</div>
 					</div>
 			</div>
-            
-            <?php if (isset($_SESSION['quantity_error'])): ?>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="alert alert-danger text-center">
-                            <?php echo $_SESSION['quantity_error']; ?>
-                        </div>
-                    </div>
-                </div>
-                <?php unset($_SESSION['quantity_error']); ?>
-            <?php endif; ?>
-            
 			<div class="row row-pb-lg">
 				<div class="col-md-12">
 					<div class="product-name d-flex">
@@ -218,8 +206,7 @@ if (!isset($cartItems)) {
                                 </div>
                                 <div class="one-eight text-center">
                                     <div class="display-tc">
-                                        <input type="number" name="quantity" class="form-control input-number text-center item-quantity" value="<?php echo $item['quantity']; ?>" min="1" max="20" style="font-size: 16px; padding: 6px 4px;">
-                                        <small class="text-muted" style="font-size: 11px; display: block; margin-top: 4px;">Tối đa 20 sản phẩm</small>
+                                        <input type="number" name="quantity" class="form-control input-number text-center item-quantity" value="<?php echo $item['quantity']; ?>" min="1" max="10000" style="font-size: 16px; padding: 6px 4px;">
                                     </div>
                                 </div>
                                 <div class="one-eight text-center">
@@ -276,7 +263,7 @@ if (!isset($cartItems)) {
 									</div>
                                     <?php if (isset($cartItems) && !empty($cartItems)): ?>
                                         <div class="mt-3">
-                                            <a href="/web_php_mvc/View/user/payment.php" id="checkout-button" class="btn btn-primary btn-block" style="font-size: 16px; padding: 12px;">Tiến hành thanh toán</a>
+                                            <a href="/web_php_mvc/View/user/payment.php" class="btn btn-primary btn-block" style="font-size: 16px; padding: 12px;">Tiến hành thanh toán</a>
                                         </div>
                                         <div class="mt-2">
                                             <!-- <button id="remove-recent-order" class="btn btn-secondary btn-block" style="font-size: 16px; padding: 12px;">Huỷ đơn hàng gần nhất</button> -->
@@ -322,53 +309,7 @@ if (!isset($cartItems)) {
     
     <script>
         $(document).ready(function(){
-            const MAX_QUANTITY = 20;
-            
-            // Check if any item exceeds maximum quantity
-            function checkQuantityLimits() {
-                let hasExceededItems = false;
-                let exceededItems = [];
-                
-                $('.item-quantity').each(function() {
-                    let quantity = parseInt($(this).val());
-                    let productName = $(this).closest('.cart-item').find('h3').text().trim();
-                    
-                    if (quantity > MAX_QUANTITY) {
-                        hasExceededItems = true;
-                        exceededItems.push(productName);
-                        $(this).val(MAX_QUANTITY); // Reset to maximum
-                        
-                        // Highlight the item with exceeded quantity
-                        $(this).css('border-color', 'red');
-                    } else {
-                        $(this).css('border-color', '#ddd');
-                    }
-                });
-                
-                return {
-                    hasExceededItems: hasExceededItems,
-                    items: exceededItems
-                };
-            }
-            
-            // Call checking function on page load
-            checkQuantityLimits();
-            
-            // Prevent checkout if quantity limits are exceeded
-            $('#checkout-button').on('click', function(e) {
-                const result = checkQuantityLimits();
-                
-                if (result.hasExceededItems) {
-                    e.preventDefault();
-                    
-                    let message = 'Không thể tiến hành thanh toán vì số lượng sản phẩm vượt quá giới hạn cho phép (tối đa 20):\n';
-                    result.items.forEach(item => {
-                        message += `- ${item}\n`;
-                    });
-                    
-                    alert(message);
-                }
-            });
+            const MAX_QUANTITY = 10000;
             
             // Update quantity
             $('.item-quantity').on('change', function() {
@@ -380,7 +321,7 @@ if (!isset($cartItems)) {
                     $(this).val(1);
                     quantity = 1;
                 } else if (quantity > MAX_QUANTITY) {
-                    alert('Số lượng tối đa cho mỗi sản phẩm là 20. Số lượng đã được điều chỉnh.');
+                    alert('Maximum order quantity is 10,000 items');
                     $(this).val(MAX_QUANTITY);
                     quantity = MAX_QUANTITY;
                 }

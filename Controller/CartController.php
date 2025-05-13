@@ -68,13 +68,6 @@ class CartController {
             $quantity = 1;
         }
         
-        // Check if quantity exceeds the maximum allowed (20)
-        $exceedsLimit = false;
-        if ($quantity > 20) {
-            $quantity = 20;
-            $exceedsLimit = true;
-        }
-        
         // Get the product variant ID based on product and size
         $variant = $this->getVariantIdByProductAndSize($productId, $sizeId);
         
@@ -87,24 +80,8 @@ class CartController {
             ];
         }
         
-        // Check if adding this quantity would exceed the 20-item limit
-        // Get current quantity in cart if any
-        $userId = $_SESSION['id_user'];
-        $currentQuantity = $this->cartModel->getItemQuantity($userId, $variant['id_variant']);
-        
-        if ($currentQuantity > 0 && ($currentQuantity + $quantity) > 20) {
-            $quantity = 20 - $currentQuantity;
-            $exceedsLimit = true;
-            
-            if ($quantity <= 0) {
-                return [
-                    'status' => 'warning',
-                    'message' => 'You already have the maximum quantity (20) of this item in your cart'
-                ];
-            }
-        }
-        
         // Add to cart
+        $userId = $_SESSION['id_user'];
         error_log("Adding to cart with User ID: $userId");
         $result = $this->cartModel->addToCart($userId, $variant['id_variant'], $quantity);
         
@@ -112,19 +89,11 @@ class CartController {
             // Get updated cart count
             $cartCount = $this->cartModel->getCartCount($userId);
             
-            if ($exceedsLimit) {
-                return [
-                    'status' => 'warning',
-                    'message' => 'Product added to cart, but limited to maximum quantity of 20 items',
-                    'cart_count' => $cartCount
-                ];
-            } else {
-                return [
-                    'status' => 'success',
-                    'message' => 'Product added to cart successfully',
-                    'cart_count' => $cartCount
-                ];
-            }
+            return [
+                'status' => 'success',
+                'message' => 'Product added to cart successfully',
+                'cart_count' => $cartCount
+            ];
         } else {
             return [
                 'status' => 'error',
@@ -224,13 +193,6 @@ class CartController {
             return;
         }
         
-        // Check if quantity exceeds maximum limit
-        $quantityLimited = false;
-        if ($quantity > 20) {
-            $quantity = 20;
-            $quantityLimited = true;
-        }
-        
         $result = $this->cartModel->updateCartItemQuantity($userId, $variantId, $quantity);
         
         if ($result) {
@@ -243,16 +205,14 @@ class CartController {
                 $subTotal += $item['total_price'];
             }
             
-            $response = [
-                'status' => $quantityLimited ? 'warning' : 'success',
-                'message' => $quantityLimited ? 'Quantity limited to maximum of 20 items' : 'Cart updated successfully',
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Cart updated successfully',
                 'cart_count' => $cartCount,
                 'sub_total' => $subTotal,
                 'total' => $subTotal, // Apply any discounts if needed
                 'item_total' => $this->getItemTotal($cartItems, $variantId)
-            ];
-            
-            echo json_encode($response);
+            ]);
         } else {
             echo json_encode([
                 'status' => 'error',
@@ -395,93 +355,12 @@ class CartController {
                 $this->handleRemoveRecentOrder($userId);
                 break;
                 
-            case 'check_quantity':
-                $this->checkQuantityLimit();
-                break;
-                
             default:
                 echo json_encode([
                     'status' => 'error',
                     'message' => 'Invalid action'
                 ]);
         }
-    }
-    
-    /**
-     * Check if adding a product would exceed the quantity limit
-     */
-    public function checkQuantityLimit() {
-        // Check if user is logged in
-        if (!isset($_SESSION['id_user']) || empty($_SESSION['id_user'])) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Bạn phải đăng nhập để thực hiện thao tác này'
-            ]);
-            return;
-        }
-        
-        // Get parameters from POST request
-        $productId = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
-        $sizeId = isset($_POST['size_id']) ? intval($_POST['size_id']) : 0;
-        $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
-        
-        // Validate input
-        if ($productId <= 0) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Sản phẩm không hợp lệ'
-            ]);
-            return;
-        }
-        
-        if ($sizeId <= 0) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Vui lòng chọn kích cỡ sản phẩm'
-            ]);
-            return;
-        }
-        
-        if ($quantity <= 0) {
-            $quantity = 1;
-        }
-        
-        // Get the product variant ID
-        $variant = $this->getVariantIdByProductAndSize($productId, $sizeId);
-        
-        if (!$variant) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Sản phẩm không có sẵn với kích cỡ đã chọn'
-            ]);
-            return;
-        }
-        
-        // Check current quantity in cart
-        $userId = $_SESSION['id_user'];
-        $currentQuantity = $this->cartModel->getItemQuantity($userId, $variant['id_variant']);
-        
-        // Check if adding the new quantity would exceed the limit
-        if (($currentQuantity + $quantity) > 20) {
-            echo json_encode([
-                'status' => 'exceeded',
-                'message' => 'Số lượng vượt quá giới hạn cho phép',
-                'current_quantity' => $currentQuantity,
-                'requested_quantity' => $quantity,
-                'total_quantity' => $currentQuantity + $quantity,
-                'max_allowed' => 20
-            ]);
-            return;
-        }
-        
-        // If we get here, the quantity is within limits
-        echo json_encode([
-            'status' => 'ok',
-            'message' => 'Số lượng hợp lệ',
-            'current_quantity' => $currentQuantity,
-            'requested_quantity' => $quantity,
-            'total_quantity' => $currentQuantity + $quantity
-        ]);
     }
     
     public function placeOrder() {

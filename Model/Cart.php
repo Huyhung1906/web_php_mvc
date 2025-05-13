@@ -25,12 +25,6 @@ class Cart {
                 $currentQuantity = $checkStmt->fetch(PDO::FETCH_ASSOC)['quantity'];
                 $newQuantity = $currentQuantity + $quantity;
                 
-                // Implement maximum quantity limit of 20
-                if ($newQuantity > 20) {
-                    $newQuantity = 20;
-                    error_log("Quantity limited to maximum of 20 items");
-                }
-                
                 error_log("Updating existing cart item. Current quantity: $currentQuantity, New quantity: $newQuantity");
                 
                 $updateQuery = "UPDATE cart SET quantity = :quantity WHERE id_user = :user_id AND id_variant = :variant_id";
@@ -44,13 +38,6 @@ class Cart {
             } else {
                 // Insert new cart item
                 error_log("Adding new cart item");
-                
-                // Implement maximum quantity limit of 20
-                if ($quantity > 20) {
-                    $quantity = 20;
-                    error_log("Quantity limited to maximum of 20 items");
-                }
-                
                 $insertQuery = "INSERT INTO cart (id_user, id_variant, quantity, created_date) 
                                 VALUES (:user_id, :variant_id, :quantity, NOW())";
                 $insertStmt = $this->db->prepare($insertQuery);
@@ -154,12 +141,6 @@ class Cart {
                 return $this->removeFromCart($userId, $variantId);
             }
             
-            // Implement maximum quantity limit of 20
-            if ($quantity > 20) {
-                $quantity = 20;
-                error_log("Quantity limited to maximum of 20 items in updateCartItemQuantity");
-            }
-            
             $query = "UPDATE cart SET quantity = :quantity 
                      WHERE id_user = :user_id AND id_variant = :variant_id";
             $stmt = $this->db->prepare($query);
@@ -212,33 +193,6 @@ class Cart {
             return $result['count'] ? (int)$result['count'] : 0;
         } catch (PDOException $e) {
             error_log("Database Error in getCartCount: " . $e->getMessage());
-            return 0;
-        }
-    }
-    
-    /**
-     * Get the current quantity of a specific item in the cart
-     * 
-     * @param int $userId User ID
-     * @param int $variantId Variant ID
-     * @return int Current quantity (0 if not in cart)
-     */
-    public function getItemQuantity($userId, $variantId) {
-        try {
-            $query = "SELECT quantity FROM cart WHERE id_user = :user_id AND id_variant = :variant_id";
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
-            $stmt->bindParam(':variant_id', $variantId, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            if ($stmt->rowCount() > 0) {
-                $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                return (int)$result['quantity'];
-            }
-            
-            return 0;
-        } catch (PDOException $e) {
-            error_log("Database Error in getItemQuantity: " . $e->getMessage());
             return 0;
         }
     }

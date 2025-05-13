@@ -102,7 +102,7 @@ if (!isset($product) || empty($product)) {
                                         <i class="icon-minus2"></i>
                                     </button>
                                 </span>
-                                <input type="text" id="quantity" name="quantity" class="form-control input-number" value="1" min="1" max="20">
+                                <input type="text" id="quantity" name="quantity" class="form-control input-number" value="1" min="1" max="10000">
                                 <span class="input-group-btn ml-1">
                                     <button type="button" class="quantity-right-plus btn" data-type="plus" data-field="">
                                         <i class="icon-plus2"></i>
@@ -111,7 +111,6 @@ if (!isset($product) || empty($product)) {
                             </div>
                             <div class="row">
                                 <div class="col-sm-12 text-center">
-                                    <small class="text-muted d-block mb-2">Tối đa 20 sản phẩm mỗi loại</small>
                                     <button id="add-to-cart" class="btn btn-primary btn-addtocart">
                                         <i class="icon-shopping-cart"> THÊM VÀO GIỎ</i> 
                                     </button>
@@ -221,7 +220,7 @@ if (!isset($product) || empty($product)) {
     <script>
         $(document).ready(function(){
             var quantitiy = 0;
-            var maxQuantity = 20;
+            var maxQuantity = 10000;
             
             $('.quantity-right-plus').click(function(e){
                 e.preventDefault();
@@ -229,7 +228,7 @@ if (!isset($product) || empty($product)) {
                 if(quantity < maxQuantity) {
                     $('#quantity').val(quantity + 1);
                 } else {
-                    alert('Số lượng đặt hàng tối đa là 20 sản phẩm');
+                    alert('Maximum order quantity is 10,000 items');
                 }
             });
 
@@ -247,7 +246,7 @@ if (!isset($product) || empty($product)) {
                 if(isNaN(quantity) || quantity < 1) {
                     $(this).val(1);
                 } else if(quantity > maxQuantity) {
-                    alert('Số lượng đặt hàng tối đa là 20 sản phẩm');
+                    alert('Maximum order quantity is 10,000 items');
                     $(this).val(maxQuantity);
                 }
             });
@@ -270,7 +269,7 @@ if (!isset($product) || empty($product)) {
                 
                 var quantity = parseInt($('#quantity').val());
                 if(quantity > maxQuantity) {
-                    alert('Số lượng đặt hàng tối đa là 20 sản phẩm');
+                    alert('Maximum order quantity is 10,000 items');
                     $('#quantity').val(maxQuantity);
                     return;
                 }
@@ -309,65 +308,38 @@ if (!isset($product) || empty($product)) {
                 e.preventDefault();
                 var sizeId = $('.size-option.active').data('size-id');
                 if (!sizeId) {
-                    alert('Vui lòng chọn kích cỡ trước khi đặt hàng.');
+                    alert('Please select a size first.');
                     return;
                 }
                 
                 var quantity = parseInt($('#quantity').val());
-                if (isNaN(quantity) || quantity < 1) {
-                    $('#quantity').val(1);
-                    quantity = 1;
-                }
-                
                 if(quantity > maxQuantity) {
-                    alert('Số lượng đặt hàng tối đa là 20 sản phẩm. Không thể tiến hành thanh toán với số lượng này.');
+                    alert('Maximum order quantity is 10,000 items');
                     $('#quantity').val(maxQuantity);
                     return;
                 }
                 
-                // Check if adding this quantity would exceed the limit when combined with existing cart quantity
+                // Add product to cart first
                 $.ajax({
                     url: '/web_php_mvc/process_cart.php',
                     type: 'POST',
                     dataType: 'json',
                     data: {
-                        action: 'check_quantity',
+                        action: 'add',
                         product_id: <?php echo $product['id_product']; ?>,
                         size_id: sizeId,
                         quantity: quantity
                     },
                     success: function(response) {
-                        if (response.status === 'exceeded') {
-                            alert('Bạn đã có ' + response.current_quantity + ' sản phẩm này trong giỏ hàng. Tổng số lượng không được vượt quá 20. Vui lòng điều chỉnh số lượng.');
-                            return;
+                        if (response.status === 'success') {
+                            // Redirect to checkout page
+                            window.location.href = '/web_php_mvc/View/user/payment.php';
+                        } else {
+                            alert(response.message);
                         }
-                        
-                        // Add product to cart
-                        $.ajax({
-                            url: '/web_php_mvc/process_cart.php',
-                            type: 'POST',
-                            dataType: 'json',
-                            data: {
-                                action: 'add',
-                                product_id: <?php echo $product['id_product']; ?>,
-                                size_id: sizeId,
-                                quantity: quantity
-                            },
-                            success: function(response) {
-                                if (response.status === 'success' || response.status === 'warning') {
-                                    // Redirect to checkout page
-                                    window.location.href = '/web_php_mvc/View/user/payment.php';
-                                } else {
-                                    alert(response.message);
-                                }
-                            },
-                            error: function() {
-                                alert('Đã xảy ra lỗi. Vui lòng thử lại sau.');
-                            }
-                        });
                     },
                     error: function() {
-                        alert('Đã xảy ra lỗi khi kiểm tra số lượng. Vui lòng thử lại sau.');
+                        alert('An error occurred. Please try again later.');
                     }
                 });
             });
